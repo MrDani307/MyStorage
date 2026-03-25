@@ -3,82 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cloud Note Saver</title>
+    <title>Cloud Saver</title>
     <style>
-        /* Стиль в духе темной темы (как ты любишь в GUI) */
-        body { 
-            font-family: 'Segoe UI', sans-serif; 
-            background: #0f0f0f; 
-            color: #e0e0e0; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            height: 100vh; 
-            margin: 0; 
-        }
-        .container { 
-            background: #1a1a1a; 
-            padding: 30px; 
-            border-radius: 20px; 
-            border: 1px solid #333;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.7); 
-            width: 380px; 
-            text-align: center; 
-        }
-        h2 { color: #00d4ff; margin-bottom: 5px; }
-        #status { font-size: 13px; color: #888; margin-bottom: 20px; }
-        
-        input { 
-            width: 100%; 
-            padding: 12px; 
-            margin: 10px 0; 
-            border-radius: 10px; 
-            border: 1px solid #444; 
-            background: #252525; 
-            color: white; 
-            box-sizing: border-box; 
-            outline: none;
-        }
-        input:focus { border-color: #00d4ff; }
-
-        button { 
-            width: 100%; 
-            padding: 12px; 
-            margin: 8px 0; 
-            border: none; 
-            border-radius: 10px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            transition: 0.2s; 
-        }
-        .btn-google { background: #ea4335; color: white; }
-        .btn-save { background: #00d4ff; color: #000; }
-        .btn-import { background: #333; color: #00d4ff; border: 1px solid #00d4ff; }
-        
-        button:hover { opacity: 0.9; transform: translateY(-2px); }
-        button:active { transform: translateY(0); }
+        body { font-family: sans-serif; background: #121212; color: white; text-align: center; padding: 20px; }
+        .box { background: #1e1e1e; padding: 20px; border-radius: 15px; border: 1px solid #333; max-width: 400px; margin: auto; }
+        input { width: 90%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #444; background: #252525; color: white; }
+        button { width: 95%; padding: 12px; margin: 5px 0; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
+        .btn-blue { background: #00d4ff; color: black; }
+        .btn-red { background: #ea4335; color: white; }
+        #status { color: #888; margin-bottom: 10px; font-size: 14px; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>Cloud Save</h2>
-    <div id="status">Загрузка системы...</div>
+<div class="box">
+    <h2>Cloud Saver</h2>
+    <div id="status">Инициализация...</div>
     
-    <button class="btn-google" id="loginBtn" style="display: none;">Войти в Google Аккаунт</button>
-    
-    <input type="text" id="textInput" placeholder="Введи любой текст...">
-    
-    <button class="btn-save" id="saveBtn">💾 Сохранить в облако</button>
-    <button class="btn-import" id="importBtn">📥 Импорт (Загрузить)</button>
+    <button class="btn-red" id="loginBtn" style="display:none">Войти через Google</button>
+    <input type="text" id="textInput" placeholder="Твой текст...">
+    <button class="btn-blue" id="saveBtn">Сохранить</button>
+    <button id="importBtn" style="background: #333; color: white;">Загрузить (Импорт)</button>
 </div>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-  import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
-  // Твой личный конфиг
+<script>
+  // Твой конфиг
   const firebaseConfig = {
     apiKey: "AIzaSyDhhcyOXdcHrz5KG3TZrrj6grwaeSxKHVk",
     authDomain: "mysotarage.firebaseapp.com",
@@ -89,29 +42,58 @@
     measurementId: "G-ZMEXJTBDB7"
   };
 
-  // Инициализация сервисов
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-  const provider = new GoogleAuthProvider();
+  // Инициализация (compat версия)
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+  const provider = new firebase.auth.GoogleAuthProvider();
 
   const statusDiv = document.getElementById('status');
   const loginBtn = document.getElementById('loginBtn');
   const textInput = document.getElementById('textInput');
 
-  // 1. ПРОВЕРКА ВХОДА
-  onAuthStateChanged(auth, (user) => {
+  // Следим за входом
+  auth.onAuthStateChanged((user) => {
     if (user) {
-      statusDiv.innerHTML = `Привет, <b>${user.displayName}</b>!`;
+      statusDiv.innerText = "Аккаунт: " + user.displayName;
       loginBtn.style.display = "none";
     } else {
-      statusDiv.innerText = "Нужно войти, чтобы сохранять данные";
+      statusDiv.innerText = "Нужно войти в систему";
       loginBtn.style.display = "block";
     }
   });
 
-  // 2. КНОПКА ВХОДА
-  document.getElementById('loginBtn').onclick = async () => {
-    try {
-      await signInWithPopup(auth, provider);
-    } catch (error) {
+  // Логин
+  loginBtn.onclick = () => {
+    auth.signInWithPopup(provider).catch(err => alert("Ошибка: " + err.message));
+  };
+
+  // Сохранение
+  document.getElementById('saveBtn').onclick = () => {
+    const user = auth.currentUser;
+    if (!user) return alert("Войди в аккаунт!");
+    
+    db.collection("users_data").doc(user.uid).set({
+      text: textInput.value,
+      time: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => alert("Сохранено!"));
+  };
+
+  // Загрузка
+  document.getElementById('importBtn').onclick = () => {
+    const user = auth.currentUser;
+    if (!user) return alert("Войди в аккаунт!");
+
+    db.collection("users_data").doc(user.uid).get().then((doc) => {
+      if (doc.exists) {
+        textInput.value = doc.data().text;
+        alert("Данные получены!");
+      } else {
+        alert("В облаке пусто");
+      }
+    });
+  };
+</script>
+
+</body>
+</html>
