@@ -2,1462 +2,1038 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="description" content="Auto Loadstring Ultimate V7.6 - Liquid Glass Masterpiece">
-    <meta name="theme-color" content="#030303">
-    <title>Auto Loadstring Ultimate V7.6 | Mega Design Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="description" content="Auto Loadstring Ultimate V7.7 - Adaptive Masterpiece">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Auto Loadstring Ultimate V7.7 | Adaptive Mega Design</title>
     
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
     <style>
-        /* --- GLOBAL VARIABLES AND DESIGN TOKENS ---
-           Каждая переменная определена для максимального контроля над визуалом.
+        /* ==========================================================================
+           --- DESIGN TOKENS & RESPONSIVE VARIABLES ---
+           Используем атомарные переменные для каждого аспекта дизайна.
+           ==========================================================================
         */
         :root {
+            /* Palette */
             --primary-color: #00ff88;
             --primary-glow: rgba(0, 255, 136, 0.4);
             --secondary-color: #00d4ff;
             --secondary-glow: rgba(0, 212, 255, 0.4);
-            --background-dark: #020202;
-            --card-background: rgba(15, 15, 15, 0.5);
+            --background-dark: #010101;
+            --card-background: rgba(10, 10, 10, 0.45);
             --card-border: rgba(255, 255, 255, 0.08);
             --text-main: #ffffff;
-            --text-muted: #888888;
+            --text-muted: #999999;
             --error-color: #ff3366;
             --error-glow: rgba(255, 51, 102, 0.3);
             --warning-color: #ffcc00;
             --royal-color: #bd93f9;
-            --container-max-width: 550px;
-            --transition-speed: 0.4s;
-            --easing-function: cubic-bezier(0.25, 1, 0.5, 1);
-            --glass-blur: 35px;
-            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+            /* Spacing Engine - Теперь динамический */
+            --container-padding-v: clamp(20px, 5vh, 40px);
+            --container-padding-h: clamp(15px, 4vw, 35px);
+            --element-gap: 18px;
+            --border-radius-lg: 35px;
+            --border-radius-md: 20px;
+            --border-radius-sm: 12px;
+
+            /* Physics & Effects */
+            --glass-blur: 40px;
+            --transition-speed: 0.5s;
+            --easing: cubic-bezier(0.16, 1, 0.3, 1);
+            --font-main: 'Inter', system-ui, -apple-system, sans-serif;
+            
+            /* Responsive Widths */
+            --max-w: 520px;
         }
 
-        /* --- THEME ENGINE ---
-           Цветовые схемы переопределяют основные переменные.
+        /* --- ORIGINAL THEME OVERRIDES --- */
+        body.theme-emerald { --primary-color: #00ff88; --secondary-color: #0088ff; }
+        body.theme-ocean   { --primary-color: #00d4ff; --secondary-color: #0044ff; }
+        body.theme-sunset  { --primary-color: #ffcc00; --secondary-color: #ff4400; }
+        body.theme-royal   { --primary-color: #bd93f9; --secondary-color: #ff79c6; }
+
+        /* --- 15 NEW THEME OVERRIDES --- */
+        body.theme-crimson  { --primary-color: #ff4757; --secondary-color: #ff6b81; }
+        body.theme-aurora   { --primary-color: #7bed9f; --secondary-color: #70a1ff; }
+        body.theme-volcano  { --primary-color: #ff6348; --secondary-color: #ffa502; }
+        body.theme-neon     { --primary-color: #ff00ff; --secondary-color: #00ffff; }
+        body.theme-mint     { --primary-color: #00ffcc; --secondary-color: #00bfff; }
+        body.theme-gold     { --primary-color: #ffd700; --secondary-color: #ffaa00; }
+        body.theme-sakura   { --primary-color: #ff9eb5; --secondary-color: #ff6fa8; }
+        body.theme-toxic    { --primary-color: #aaff00; --secondary-color: #39ff14; }
+        body.theme-ice      { --primary-color: #a8edff; --secondary-color: #ffffff; }
+        body.theme-lava     { --primary-color: #ff3000; --secondary-color: #ff8c00; }
+        body.theme-galaxy   { --primary-color: #c77dff; --secondary-color: #5e60ce; }
+        body.theme-matrix   { --primary-color: #00ff41; --secondary-color: #008f11; }
+        body.theme-cyber    { --primary-color: #ffe600; --secondary-color: #ff2d78; }
+        body.theme-void     { --primary-color: #9900ff; --secondary-color: #4400cc; }
+        body.theme-blood    { --primary-color: #cc0000; --secondary-color: #880000; }
+
+        /* --- DISPLAY MODES --- */
+        body.pc-mode { --max-w: 1100px; }
+        body.mobile-mode { --max-w: 100%; }
+
+        /* ==========================================================================
+           --- MASTER KEYFRAMES LIBRARY ---
+           Расширенный набор анимаций для плавности.
+           ==========================================================================
         */
-        body.theme-emerald {
-            --primary-color: #00ff88;
-            --secondary-color: #0088ff;
-            --primary-glow: rgba(0, 255, 136, 0.4);
-        }
-        body.theme-ocean {
-            --primary-color: #00d4ff;
-            --secondary-color: #0044ff;
-            --primary-glow: rgba(0, 212, 255, 0.4);
-        }
-        body.theme-sunset {
-            --primary-color: #ffcc00;
-            --secondary-color: #ff4400;
-            --primary-glow: rgba(255, 204, 0, 0.4);
-        }
-        body.theme-royal {
-            --primary-color: #bd93f9;
-            --secondary-color: #ff79c6;
-            --primary-glow: rgba(189, 147, 249, 0.4);
-        }
-
-        /* DISPLAY MODES */
-        body.pc-mode {
-            --container-max-width: 1000px;
-        }
-        body.mobile-mode {
-            --container-max-width: 100%;
-        }
-
-        /* --- KEYFRAME ANIMATIONS ---
-           Множество анимаций для "живого" интерфейса.
-        */
-        @keyframes masterFadeIn {
-            0% { opacity: 0; transform: scale(0.98) translateY(20px); filter: blur(15px); }
+        @keyframes entranceEffect {
+            0% { opacity: 0; transform: scale(0.95) translateY(30px); filter: blur(20px); }
             100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
         }
 
-        @keyframes liquidBackground {
-            0% { border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; }
-            34% { border-radius: 70% 30% 50% 50% / 30% 30% 70% 70%; }
-            67% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 40%; }
-            100% { border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; }
+        @keyframes nebulaRotate {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.2); }
+            100% { transform: rotate(360deg) scale(1); }
         }
 
-        @keyframes floatingOrb {
-            0% { transform: translate(0, 0) rotate(0deg); }
-            50% { transform: translate(15%, 10%) rotate(180deg); }
-            100% { transform: translate(0, 0) rotate(360deg); }
+        @keyframes borderFlow {
+            0% { border-color: var(--card-border); }
+            50% { border-color: var(--primary-color); }
+            100% { border-color: var(--card-border); }
         }
 
-        @keyframes scanningPulse {
-            0% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.4); }
-            70% { box-shadow: 0 0 0 20px rgba(0, 255, 136, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); }
+        @keyframes grainMovement {
+            0%, 100% { transform:translate(0, 0) }
+            10% { transform:translate(-5%, -10%) }
+            20% { transform:translate(-15%, 5%) }
+            30% { transform:translate(7%, -25%) }
+            40% { transform:translate(-5%, 25%) }
+            50% { transform:translate(-15%, 10%) }
+            60% { transform:translate(15%, 0%) }
+            70% { transform:translate(0%, 15%) }
+            80% { transform:translate(3%, 35%) }
+            90% { transform:translate(-10%, 10%) }
         }
+
+        /* ==========================================================================
+           --- CORE RESET & BODY STYLES ---
+           Обеспечиваем идеальное прилегание к краям экрана.
+           ==========================================================================
+        */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--background-dark);
+            color: var(--text-main);
+            font-family: var(--font-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            /* Учитываем отступы, чтобы контент не "прилипал" */
+            padding: env(safe-area-inset-top, 20px) 12px env(safe-area-inset-bottom, 20px) 12px;
+            overflow-x: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* ==========================================================================
+           --- BACKGROUND ENGINE (NEBULA) ---
+           Создаем многослойный параллакс-фон.
+           ==========================================================================
+        */
+        .nebula-engine {
+            position: fixed;
+            inset: 0;
+            z-index: -5;
+            overflow: hidden;
+            background: #000;
+        }
+
+        .nebula-layer {
+            position: absolute;
+            width: 150vw;
+            height: 150vh;
+            top: -25vh;
+            left: -25vw;
+            filter: blur(100px);
+            opacity: 0.3;
+            animation: nebulaRotate 40s infinite linear;
+        }
+
+        .orb-1 { background: radial-gradient(circle, var(--primary-color) 0%, transparent 70%); top: -10%; left: -10%; }
+        .orb-2 { background: radial-gradient(circle, var(--secondary-color) 0%, transparent 70%); bottom: -10%; right: -10%; animation-delay: -20s; }
+        .orb-3 { background: radial-gradient(circle, var(--royal-color) 0%, transparent 70%); top: 40%; left: 30%; width: 60vw; height: 60vh; opacity: 0.15; }
+
+        .grain-overlay {
+            position: fixed;
+            inset: -100%;
+            z-index: -4;
+            background-image: url('https://grainy-gradients.vercel.app/noise.svg');
+            opacity: 0.08;
+            pointer-events: none;
+            animation: grainMovement 8s steps(10) infinite;
+        }
+
+        /* ==========================================================================
+           --- MAIN CONTAINER (ADAPTIVE GLASS) ---
+           Контейнер теперь использует calc() для предотвращения переполнения.
+           ==========================================================================
+        */
+        .master-container {
+            width: 100%;
+            max-width: var(--max-w);
+            /* Магическая формула: ширина экрана минус горизонтальные отступы */
+            width: calc(100vw - 24px); 
+            background: var(--card-background);
+            backdrop-filter: blur(var(--glass-blur));
+            -webkit-backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid var(--card-border);
+            border-radius: var(--border-radius-lg);
+            padding: var(--container-padding-v) var(--container-padding-h);
+            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.8), 
+                        inset 0 1px 1px rgba(255,255,255,0.05);
+            animation: entranceEffect 0.8s var(--easing);
+            position: relative;
+            z-index: 10;
+            margin: auto 0;
+        }
+
+        /* Title Typography */
+        .header-block {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .header-title {
+            font-size: clamp(24px, 6vw, 34px);
+            font-weight: 950;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            background: linear-gradient(90deg, #fff, var(--primary-color), var(--secondary-color), #fff);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: textShimmer 5s linear infinite;
+        }
+
+        /* ==========================================================================
+           --- UI COMPONENTS ---
+           Каждый элемент управления переработан для мобильного касания (44px min).
+           ==========================================================================
+        */
+        .nav-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 10px;
+            border-radius: var(--border-radius-md);
+            border: 1px solid var(--card-border);
+            margin-bottom: 25px;
+            justify-content: center;
+        }
+
+        .select-field {
+            background: #000;
+            color: #fff;
+            border: 1px solid var(--card-border);
+            border-radius: var(--border-radius-sm);
+            padding: 8px 12px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            flex-grow: 1;
+            min-width: 80px;
+        }
+
+        .auth-bar {
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        .login-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: #000;
+            border: none;
+            padding: 12px;
+            border-radius: var(--border-radius-sm);
+            font-weight: 900;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px var(--primary-glow);
+            cursor: pointer;
+        }
+
+        /* Form Inputs */
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .field-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .field-label {
+            font-size: 10px;
+            color: var(--primary-color);
+            text-transform: uppercase;
+            font-weight: 800;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+            padding-left: 10px;
+        }
+
+        .main-input {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid var(--card-border);
+            border-radius: var(--border-radius-md);
+            padding: 16px 20px;
+            color: #fff;
+            font-size: 14px;
+            transition: all 0.3s var(--easing);
+            width: 100%;
+        }
+
+        .main-input:focus {
+            border-color: var(--primary-color);
+            background: rgba(0,0,0,0.6);
+            box-shadow: 0 0 25px rgba(0, 255, 136, 0.1);
+        }
+
+        /* Toggles Area */
+        .option-row {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 10px 0;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        .checkbox-label input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary-color);
+        }
+
+        /* Button Grid */
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .mega-btn {
+            border: none;
+            border-radius: var(--border-radius-md);
+            padding: 16px;
+            font-size: 11px;
+            font-weight: 900;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.3s var(--easing);
+            letter-spacing: 1px;
+        }
+
+        .btn-main { background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: #000; grid-column: span 2; box-shadow: 0 8px 20px var(--primary-glow); }
+        .btn-sub { background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--card-border); }
+        .btn-warn { background: var(--error-color); color: #fff; box-shadow: 0 8px 20px var(--error-glow); }
+
+        .mega-btn:active { transform: scale(0.96); }
+
+        /* ==========================================================================
+           --- CONTENT LISTS ---
+           Карточки скриптов теперь более компактные, но с крупными зонами нажатия.
+           ==========================================================================
+        */
+        .list-section {
+            margin-top: 35px;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        .divider-text {
+            font-size: 10px;
+            font-weight: 900;
+            color: var(--primary-color);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .divider-line {
+            height: 1px;
+            flex: 1;
+            background: linear-gradient(90deg, var(--card-border), transparent);
+        }
+
+        .script-card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--card-border);
+            border-radius: var(--border-radius-md);
+            padding: 18px 22px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.4s var(--easing);
+        }
+
+        .script-card:hover {
+            background: rgba(255,255,255,0.05);
+            border-color: var(--primary-color);
+            transform: translateX(5px);
+        }
+
+        .card-meta b { font-size: 15px; display: block; color: var(--primary-color); }
+        .card-meta span { font-size: 10px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; }
+
+        .card-icons { display: flex; gap: 6px; }
+        .icon-btn {
+            width: 36px; height: 36px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.03);
+            color: #777;
+            font-size: 14px;
+        }
+        .icon-btn.active { color: var(--warning-color); }
+
+        /* ==========================================================================
+           --- OVERLAYS (ULTIMATE BLUR) ---
+           Исправлено переполнение на мобильных устройствах.
+           ==========================================================================
+        */
+        .full-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(50px);
+            -webkit-backdrop-filter: blur(50px);
+            z-index: 1000;
+            padding: 20px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Оверлей просмотра кода всегда поверх остальных */
+        #overCode { z-index: 1100; }
+
+        .overlay-box {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+            background: var(--card-background);
+            border: 1px solid var(--card-border);
+            border-radius: var(--border-radius-lg);
+            padding: 30px;
+            animation: entranceEffect 0.5s var(--easing);
+        }
+
+        .code-pre {
+            background: #000;
+            color: var(--primary-color);
+            padding: 20px;
+            border-radius: var(--border-radius-md);
+            font-family: 'Consolas', monospace;
+            font-size: 12px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            border: 1px solid var(--card-border);
+            line-height: 1.6;
+        }
+
+        /* Notification Toast */
+        .toast-engine {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: #000;
+            padding: 14px 40px;
+            border-radius: 50px;
+            font-weight: 900;
+            font-size: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 9999;
+            transition: transform 0.6s var(--easing);
+        }
+        .toast-engine.show { transform: translateX(-50%) translateY(0); }
+
+        /* Footer Stats */
+        .footer-info {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--card-border);
+            display: flex;
+            justify-content: space-around;
+            opacity: 0.6;
+        }
+
+        .stat-box { text-align: center; }
+        .stat-box b { font-size: 16px; display: block; }
+        .stat-box small { font-size: 8px; text-transform: uppercase; letter-spacing: 1px; }
 
         @keyframes textShimmer {
             0% { background-position: -200% center; }
             100% { background-position: 200% center; }
         }
 
-        @keyframes grain {
-            0%, 100% { transform: translate(0, 0); }
-            10% { transform: translate(-5%, -10%); }
-            20% { transform: translate(-15%, 5%); }
-            30% { transform: translate(7%, -25%); }
-            40% { transform: translate(-5%, 25%); }
-            50% { transform: translate(-15%, 10%); }
-            60% { transform: translate(15%, 0%); }
-            70% { transform: translate(0%, 15%); }
-            80% { transform: translate(3%, 35%); }
-            90% { transform: translate(-10%, 10%); }
-        }
-
-        /* --- RESET AND BASE STYLES ---
+        /* ==========================================================================
+           --- RESPONSIVE FIXES ---
+           Дополнительная защита для сверхмалых экранов.
+           ==========================================================================
         */
-        * {
-            margin-top: 0px;
-            margin-bottom: 0px;
-            margin-left: 0px;
-            margin-right: 0px;
-            padding-top: 0px;
-            padding-bottom: 0px;
-            padding-left: 0px;
-            padding-right: 0px;
-            box-sizing: border-box;
-            font-family: var(--font-family);
-            -webkit-tap-highlight-color: transparent;
-            outline: none;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            background-color: var(--background-dark);
-            color: var(--text-main);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            padding-top: 40px;
-            padding-bottom: 40px;
-            padding-left: 20px;
-            padding-right: 20px;
-            overflow-x: hidden;
-            -webkit-user-select: none;
-            user-select: none;
-            position: relative;
-        }
-
-        /* --- BACKGROUND LAYERS ---
-           Создаем глубину за счет шума и размытых сфер.
-        */
-        .background-engine {
-            position: fixed;
-            top: 0px;
-            left: 0px;
-            width: 100vw;
-            height: 100vh;
-            z-index: -2;
-            overflow: hidden;
-            background: radial-gradient(circle at 50% 50%, #0a0a0a 0%, #000000 100%);
-        }
-
-        .noise-layer {
-            position: fixed;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background-image: url('https://grainy-gradients.vercel.app/noise.svg');
-            opacity: 0.15;
-            z-index: -1;
-            pointer-events: none;
-            animation: grain 8s steps(10) infinite;
-        }
-
-        .liquid-blob {
-            position: absolute;
-            width: 500px;
-            height: 500px;
-            filter: blur(120px);
-            opacity: 0.35;
-            z-index: -2;
-            animation: floatingOrb 25s infinite alternate ease-in-out;
-        }
-
-        .blob-primary {
-            background-color: var(--primary-color);
-            top: -100px;
-            left: -100px;
-        }
-
-        .blob-secondary {
-            background-color: var(--secondary-color);
-            bottom: -150px;
-            right: -100px;
-            animation-duration: 35s;
-            animation-delay: -7s;
-        }
-
-        .blob-tertiary {
-            background-color: var(--royal-color);
-            top: 40%;
-            left: 30%;
-            width: 350px;
-            height: 350px;
-            animation-duration: 45s;
-            animation-delay: -15s;
-        }
-
-        /* --- MAIN CONTAINER (LIQUID GLASS) ---
-        */
-        .glass-container {
-            width: 100%;
-            max-width: var(--container-max-width);
-            background-color: var(--card-background);
-            backdrop-filter: blur(var(--glass-blur));
-            -webkit-backdrop-filter: blur(var(--glass-blur));
-            border-top-width: 1px;
-            border-bottom-width: 1px;
-            border-left-width: 1px;
-            border-right-width: 1px;
-            border-style: solid;
-            border-color: var(--card-border);
-            border-radius: 40px;
-            padding-top: 40px;
-            padding-bottom: 40px;
-            padding-left: 35px;
-            padding-right: 35px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-            animation: masterFadeIn 1s var(--easing-function);
-            position: relative;
-            z-index: 10;
-            transition: max-width 0.6s var(--easing-function);
-        }
-
-        /* Title Area */
-        .app-header {
-            text-align: center;
-            margin-bottom: 35px;
-        }
-
-        .app-title {
-            font-size: 32px;
-            font-weight: 900;
-            letter-spacing: 6px;
-            text-transform: uppercase;
-            background: linear-gradient(90deg, #fff, var(--primary-color), var(--secondary-color), #fff);
-            background-size: 200% auto;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: textShimmer 4s linear infinite;
-        }
-
-        .app-subtitle {
-            font-size: 10px;
-            color: var(--text-muted);
-            letter-spacing: 2px;
-            margin-top: 8px;
-            font-weight: 700;
-        }
-
-        /* --- UI CONTROLS ---
-        */
-        .control-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: rgba(255, 255, 255, 0.03);
-            border-radius: 20px;
-            padding-top: 10px;
-            padding-bottom: 10px;
-            padding-left: 15px;
-            padding-right: 15px;
-            margin-bottom: 30px;
-            border-width: 1px;
-            border-style: solid;
-            border-color: var(--card-border);
-        }
-
-        .control-group {
-            display: flex;
-            gap: 10px;
-        }
-
-        .minimal-select {
-            background-color: rgba(0, 0, 0, 0.5);
-            color: #ffffff;
-            border-top-width: 1px;
-            border-bottom-width: 1px;
-            border-left-width: 1px;
-            border-right-width: 1px;
-            border-style: solid;
-            border-color: var(--card-border);
-            border-radius: 12px;
-            padding-top: 6px;
-            padding-bottom: 6px;
-            padding-left: 12px;
-            padding-right: 12px;
-            font-size: 11px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: border-color 0.3s;
-        }
-
-        .minimal-select:hover {
-            border-color: var(--primary-color);
-        }
-
-        /* --- AUTHENTICATION WIDGET ---
-        */
-        .auth-widget {
-            display: flex;
-            align-items: center;
-        }
-
-        .auth-btn {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            border-radius: 14px;
-            padding-top: 8px;
-            padding-bottom: 8px;
-            padding-left: 18px;
-            padding-right: 18px;
-            color: #000000;
-            font-size: 11px;
-            font-weight: 900;
-            cursor: pointer;
-            border: none;
-            box-shadow: 0 4px 15px var(--primary-glow);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .auth-btn:active {
-            transform: scale(0.95);
-        }
-
-        .auth-btn.logged-in {
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--primary-color);
-            border: 1px solid var(--primary-color);
-            box-shadow: none;
-        }
-
-        /* --- FORM STYLES ---
-        */
-        .form-section {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .input-wrapper {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .input-label {
-            font-size: 10px;
-            color: var(--primary-color);
-            text-transform: uppercase;
-            font-weight: 800;
-            letter-spacing: 1.5px;
-            margin-bottom: 8px;
-            margin-left: 10px;
-        }
-
-        .glass-input {
-            background-color: rgba(0, 0, 0, 0.3);
-            border-top-width: 1px;
-            border-bottom-width: 1px;
-            border-left-width: 1px;
-            border-right-width: 1px;
-            border-style: solid;
-            border-color: var(--card-border);
-            border-radius: 20px;
-            padding-top: 18px;
-            padding-bottom: 18px;
-            padding-left: 20px;
-            padding-right: 20px;
-            color: #ffffff;
-            font-size: 14px;
-            transition: all var(--transition-speed);
-        }
-
-        .glass-input:focus {
-            background-color: rgba(0, 0, 0, 0.5);
-            border-color: var(--primary-color);
-            box-shadow: 0 0 20px rgba(0, 255, 136, 0.15);
-        }
-
-        .glass-input::placeholder {
-            color: #555555;
-        }
-
-        /* Toggles Area */
-        .toggle-container {
-            display: flex;
-            justify-content: center;
-            gap: 25px;
-            margin-top: 10px;
-            margin-bottom: 10px;
-        }
-
-        .custom-checkbox {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--text-muted);
-        }
-
-        .custom-checkbox input {
-            width: 18px;
-            height: 18px;
-            accent-color: var(--primary-color);
-        }
-
-        .custom-checkbox:hover {
-            color: #ffffff;
-        }
-
-        /* --- ACTION BUTTONS GRID ---
-        */
-        .button-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 25px;
-        }
-
-        .mega-btn {
-            border-top-width: 0px;
-            border-bottom-width: 0px;
-            border-left-width: 0px;
-            border-right-width: 0px;
-            border-radius: 20px;
-            padding-top: 18px;
-            padding-bottom: 18px;
-            padding-left: 18px;
-            padding-right: 18px;
-            font-size: 12px;
-            font-weight: 900;
-            text-transform: uppercase;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            letter-spacing: 1px;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: #000000;
-            box-shadow: 0 10px 25px var(--primary-glow);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 30px var(--primary-glow);
-        }
-
-        .btn-ghost {
-            background-color: rgba(255, 255, 255, 0.05);
-            color: #ffffff;
-            border-top-width: 1px;
-            border-bottom-width: 1px;
-            border-left-width: 1px;
-            border-right-width: 1px;
-            border-style: solid;
-            border-color: var(--card-border);
-        }
-
-        .btn-ghost:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            border-color: var(--primary-color);
-        }
-
-        .btn-danger {
-            background-color: var(--error-color);
-            color: #ffffff;
-            box-shadow: 0 10px 20px var(--error-glow);
-        }
-
-        .btn-danger:hover {
-            transform: translateY(-3px);
-            filter: brightness(1.2);
-        }
-
-        /* --- LIST AND CARDS ---
-        */
-        .section-divider {
-            margin-top: 45px;
-            margin-bottom: 25px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .divider-text {
-            font-size: 11px;
-            font-weight: 900;
-            color: var(--primary-color);
-            letter-spacing: 3px;
-            white-space: nowrap;
-        }
-
-        .divider-line {
-            height: 1px;
-            flex-grow: 1;
-            background: linear-gradient(90deg, var(--card-border), transparent);
-        }
-
-        .script-card {
-            background-color: rgba(255, 255, 255, 0.02);
-            border-top-width: 1px;
-            border-bottom-width: 1px;
-            border-left-width: 1px;
-            border-right-width: 1px;
-            border-style: solid;
-            border-color: var(--card-border);
-            border-radius: 25px;
-            padding-top: 20px;
-            padding-bottom: 20px;
-            padding-left: 25px;
-            padding-right: 25px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            cursor: pointer;
-            transition: all 0.4s var(--easing-function);
-        }
-
-        .script-card:hover {
-            background-color: rgba(255, 255, 255, 0.05);
-            border-color: var(--primary-color);
-            transform: translateX(10px) scale(1.02);
-        }
-
-        .card-info {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .card-title {
-            font-size: 16px;
-            font-weight: 800;
-            color: var(--primary-color);
-        }
-
-        .card-tag {
-            font-size: 10px;
-            color: var(--text-muted);
-            font-weight: 600;
-            letter-spacing: 1px;
-        }
-
-        .card-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .action-icon {
-            width: 38px;
-            height: 38px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: rgba(255, 255, 255, 0.03);
-            border-radius: 12px;
-            color: var(--text-muted);
-            font-size: 16px;
-            transition: all 0.3s;
-        }
-
-        .action-icon:hover {
-            color: var(--primary-color);
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-
-        .action-icon.fav.active {
-            color: var(--warning-color);
-            filter: drop-shadow(0 0 5px var(--warning-color));
-        }
-
-        /* --- OVERLAYS ---
-        */
-        .overlay-master {
-            display: none;
-            position: fixed;
-            top: 0px;
-            left: 0px;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(50px);
-            -webkit-backdrop-filter: blur(50px);
-            z-index: 1000;
-            padding-top: 40px;
-            padding-bottom: 40px;
-            padding-left: 20px;
-            padding-right: 20px;
-            overflow-y: auto;
-        }
-
-        .overlay-content {
-            width: 100%;
-            max-width: 650px;
-            margin-top: 0px;
-            margin-bottom: 0px;
-            margin-left: auto;
-            margin-right: auto;
-            animation: masterFadeIn 0.6s var(--easing-function);
-        }
-
-        .code-box {
-            background-color: #000000;
-            border-top-width: 1px;
-            border-bottom-width: 1px;
-            border-left-width: 1px;
-            border-right-width: 1px;
-            border-style: solid;
-            border-color: var(--card-border);
-            border-radius: 25px;
-            padding-top: 25px;
-            padding-bottom: 25px;
-            padding-left: 25px;
-            padding-right: 25px;
-            color: var(--primary-color);
-            font-family: 'Consolas', 'Monaco', monospace;
-            font-size: 13px;
-            line-height: 1.6;
-            overflow-x: auto;
-            white-space: pre-wrap;
-            word-break: break-all;
-        }
-
-        /* Toast System */
-        .toast-notification {
-            position: fixed;
-            bottom: 40px;
-            left: 50%;
-            transform: translateX(-50%) translateY(150px);
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: #000000;
-            padding-top: 15px;
-            padding-bottom: 15px;
-            padding-left: 45px;
-            padding-right: 45px;
-            border-radius: 50px;
-            font-weight: 900;
-            font-size: 14px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
-            z-index: 9999;
-            transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        }
-
-        .toast-notification.visible {
-            transform: translateX(-50%) translateY(0);
-        }
-
-        /* --- SCROLLBAR ---
-        */
-        ::-webkit-scrollbar {
-            width: 5px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: linear-gradient(var(--primary-color), var(--secondary-color));
-            border-radius: 10px;
-        }
-
-        /* --- FOOTER / STATS ---
-        */
-        .footer-stats {
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid var(--card-border);
-            display: flex;
-            justify-content: space-around;
-            text-align: center;
-        }
-
-        .stat-item {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .stat-value {
-            font-size: 16px;
-            font-weight: 900;
-            color: #ffffff;
-        }
-
-        .stat-label {
-            font-size: 9px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            font-weight: 700;
+        @media (max-width: 380px) {
+            :root { --container-padding-h: 15px; }
+            .action-grid { grid-template-columns: 1fr; }
+            .header-title { font-size: 22px; }
         }
 
     </style>
 </head>
 <body class="mobile-mode theme-emerald">
 
-    <div class="background-engine">
-        <div class="noise-layer"></div>
-        <div class="liquid-blob blob-primary"></div>
-        <div class="liquid-blob blob-secondary"></div>
-        <div class="liquid-blob blob-tertiary"></div>
+    <div class="nebula-engine">
+        <div class="nebula-layer orb-1"></div>
+        <div class="nebula-layer orb-2"></div>
+        <div class="nebula-layer orb-3"></div>
+        <div class="grain-overlay"></div>
     </div>
 
-    <div id="mainToast" class="toast-notification">SYSTEM READY</div>
+    <div id="uiToast" class="toast-engine">SYSTEM ACTIVE</div>
 
-    <div class="glass-container">
+    <div class="master-container">
         
-        <header class="app-header">
-            <h1 class="app-title">LOADSTRING PRO</h1>
-            <p class="app-subtitle">Version 7.6 • Cloud Managed • Liquid Edition</p>
+        <header class="header-block">
+            <h1 class="header-title">LOADSTRING PRO</h1>
+            <p style="font-size: 9px; opacity: 0.5; letter-spacing: 2px; margin-top: 5px;">ADAPTIVE ENGINE V7.7</p>
         </header>
 
-        <nav class="control-bar">
-            <div class="control-group">
-                <select id="uiLang" class="minimal-select" onchange="core.handleLanguageChange()">
-                    <option value="en">US / EN</option>
-                    <option value="ru">RU / РУ</option>
-                </select>
-                <select id="uiTheme" class="minimal-select" onchange="core.handleThemeChange()">
-                    <option value="emerald">Emerald</option>
-                    <option value="ocean">Ocean</option>
-                    <option value="sunset">Sunset</option>
-                    <option value="royal">Royal</option>
-                </select>
-                <select id="uiMode" class="minimal-select" onchange="core.handleDisplayModeChange()">
-                    <option value="mobile-mode">Mobile</option>
-                    <option value="pc-mode">Desktop</option>
-                </select>
-            </div>
-            
-            <div class="auth-widget" id="authContainer">
-                <button class="auth-btn" id="loginBtn" onclick="cloud.signIn()">🔑 Login</button>
+        <nav class="nav-controls">
+            <select id="selLang" class="select-field" onchange="engine.updateLanguage()">
+                <option value="en">ENGLISH</option>
+                <option value="ru">РУССКИЙ</option>
+            </select>
+            <select id="selTheme" class="select-field" onchange="engine.updateTheme()">
+                <!-- Original Themes -->
+                <option value="emerald">EMERALD</option>
+                <option value="ocean">OCEAN</option>
+                <option value="sunset">SUNSET</option>
+                <option value="royal">ROYAL</option>
+                <!-- 15 New Themes -->
+                <option value="crimson">CRIMSON</option>
+                <option value="aurora">AURORA</option>
+                <option value="volcano">VOLCANO</option>
+                <option value="neon">NEON</option>
+                <option value="mint">MINT</option>
+                <option value="gold">GOLD</option>
+                <option value="sakura">SAKURA</option>
+                <option value="toxic">TOXIC</option>
+                <option value="ice">ICE</option>
+                <option value="lava">LAVA</option>
+                <option value="galaxy">GALAXY</option>
+                <option value="matrix">MATRIX</option>
+                <option value="cyber">CYBER</option>
+                <option value="void">VOID</option>
+                <option value="blood">BLOOD</option>
+            </select>
+            <select id="selMode" class="select-field" onchange="engine.updateTheme()">
+                <option value="mobile-mode">MOBILE</option>
+                <option value="pc-mode">DESKTOP</option>
+            </select>
+            <div class="auth-bar" id="authBox">
+                <button class="login-btn" onclick="cloud.doLogin()">🔑 Cloud Login</button>
             </div>
         </nav>
 
-        <section class="form-section">
-            <div class="toggle-container">
-                <label class="custom-checkbox">
-                    <input type="checkbox" id="prefStrict" checked>
-                    <span id="labelStrict">Strict URL</span>
-                </label>
-                <label class="custom-checkbox">
-                    <input type="checkbox" id="prefAls" checked>
-                    <span id="labelAls">Auto-LS</span>
-                </label>
-                <label class="custom-checkbox">
-                    <input type="checkbox" id="prefFolders" checked onchange="core.toggleFolderSelect()">
-                    <span id="labelFolders">Folders</span>
-                </label>
+        <section class="input-group">
+            <div class="option-row">
+                <label class="checkbox-label"><input type="checkbox" id="chkStrict" checked><span id="txtStrict">Strict</span></label>
+                <label class="checkbox-label"><input type="checkbox" id="chkAls" checked><span id="txtAls">Auto LS</span></label>
+                <label class="checkbox-label"><input type="checkbox" id="chkFol" checked onchange="engine.toggleFolderInput()"><span id="txtFol">Folders</span></label>
             </div>
 
-            <div class="input-wrapper" id="folderInputGroup">
-                <label class="input-label" id="labelFolder">Target Folder</label>
-                <select id="inputFolder" class="glass-input">
+            <div class="field-container" id="folGroup">
+                <label class="field-label" id="lblFol">Folder Selection</label>
+                <select id="inFol" class="main-input">
                     <option value="">No Folder Selected</option>
                 </select>
             </div>
 
-            <div class="input-wrapper">
-                <label class="input-label" id="labelName">Script Alias</label>
-                <input type="text" id="inputName" class="glass-input" placeholder="e.g. My Hub V2">
+            <div class="field-container">
+                <label class="field-label" id="lblNam">Alias / Name</label>
+                <input type="text" id="inNam" class="main-input" placeholder="e.g. BedWars Hub">
             </div>
 
-            <div class="input-wrapper">
-                <label class="input-label" id="labelSource">Source Code or URL</label>
-                <input type="text" id="inputSource" class="glass-input" placeholder="Paste link or raw code...">
+            <div class="field-container">
+                <label class="field-label" id="lblSrc">Code / URL</label>
+                <input type="text" id="inSrc" class="main-input" placeholder="Paste source here...">
             </div>
 
-            <div class="button-grid">
-                <button class="mega-btn btn-primary" id="btnSave" onclick="core.saveScript()" style="grid-column: span 2;">
-                    <span>💾</span> <span id="textSave">Save Script</span>
-                </button>
-                <button class="mega-btn btn-danger" id="btnCancel" onclick="core.exitEditMode()" style="display: none;">
-                    <span>❌</span> <span id="textCancel">Cancel Edit</span>
-                </button>
-                <button class="mega-btn btn-ghost" onclick="core.clearInputs()">
-                    <span>🧹</span> <span id="textClear">Clear</span>
-                </button>
-                <button class="mega-btn btn-ghost" onclick="core.copyToClipboardFromInput()">
-                    <span>✂️</span> <span id="textCopy">Quick Copy</span>
-                </button>
-                <button class="mega-btn btn-ghost" onclick="overlays.showFolderManager()" style="grid-column: span 2;">
-                    <span>📂</span> <span id="textManage">Manage Folder Structure</span>
-                </button>
-                <button class="mega-btn btn-ghost" onclick="cloud.pushData()">
-                    <span>☁️</span> <span id="textPush">Cloud Push</span>
-                </button>
-                <button class="mega-btn btn-ghost" onclick="cloud.pullData()">
-                    <span>📥</span> <span id="textPull">Cloud Pull</span>
-                </button>
+            <div class="action-grid">
+                <button class="mega-btn btn-main" id="btnSave" onclick="engine.saveScript()">💾 <span id="txtSave">Save Script</span></button>
+                <button class="mega-btn btn-warn" id="btnCancel" onclick="engine.stopEdit()" style="display: none;">❌ <span id="txtCancel">Cancel</span></button>
+                <button class="mega-btn btn-sub" onclick="engine.clearInputs()">🧹 <span id="txtClear">Clear</span></button>
+                <button class="mega-btn btn-sub" onclick="engine.copyQuick()">✂️ <span id="txtCopy">Copy</span></button>
+                <button class="mega-btn btn-sub" style="grid-column: span 2;" onclick="engine.openFolderManager()">📂 <span id="txtManage">Manage Hierarchy</span></button>
+                <button class="mega-btn btn-sub" onclick="cloud.push()">☁️ <span id="txtPush">Push</span></button>
+                <button class="mega-btn btn-sub" onclick="cloud.pull()">📥 <span id="txtPull">Pull</span></button>
             </div>
         </section>
 
-        <div class="section-divider">
-            <span class="divider-text" id="labelSearch">Database Search</span>
+        <div class="divider">
+            <span class="divider-text" id="txtSearchLabel">Database Search</span>
             <div class="divider-line"></div>
         </div>
 
-        <input type="text" id="searchInput" class="glass-input" style="width: 100%; border-style: dashed;" oninput="core.renderMainList()" placeholder="Start typing name...">
+        <input type="text" id="inSearch" class="main-input" style="border-style: dashed;" oninput="engine.render()" placeholder="Search archives...">
 
-        <div id="mainContentList" style="margin-top: 25px;">
+        <div id="mainContent" style="margin-top: 20px;">
             </div>
 
-        <footer class="footer-stats">
-            <div class="stat-item">
-                <span class="stat-value" id="statScripts">0</span>
-                <span class="stat-label">Scripts</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-value" id="statFolders">0</span>
-                <span class="stat-label">Folders</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-value" id="statSync">None</span>
-                <span class="stat-label">Last Sync</span>
-            </div>
+        <footer class="footer-info">
+            <div class="stat-box"><b id="stScripts">0</b><small>Scripts</small></div>
+            <div class="stat-box"><b id="stFolders">0</b><small>Folders</small></div>
+            <div class="stat-box"><b id="stCloud">Offline</b><small>Status</small></div>
         </footer>
 
     </div>
 
-    <div id="overlayView" class="overlay-master" onclick="overlays.closeAll(event)">
-        <div class="overlay-content" onclick="event.stopPropagation()">
-            <h3 id="viewTitle" style="color: var(--primary-color); text-align: center; font-size: 22px; margin-bottom: 20px;">SCRIPT VIEW</h3>
-            <pre id="viewPre" class="code-box"></pre>
-            <button class="mega-btn btn-ghost" style="width: 100%; margin-top: 25px;" onclick="overlays.hideOverlay('overlayView')">CLOSE VIEW</button>
+    <div id="overCode" class="full-overlay" onclick="ui.closeOverlays(event)">
+        <div class="overlay-box" onclick="event.stopPropagation()">
+            <h2 id="overCodeTitle" style="color:var(--primary-color); text-align:center; margin-bottom:20px; font-weight:900;">VIEW SOURCE</h2>
+            <pre id="overCodePre" class="code-pre"></pre>
+            <button class="mega-btn btn-sub" style="width:100%; margin-top:20px;" onclick="ui.hide('overCode')">CLOSE</button>
         </div>
     </div>
 
-    <div id="overlayFolderMgr" class="overlay-master" onclick="overlays.closeAll(event)">
-        <div class="overlay-content" onclick="event.stopPropagation()">
-            <h3 id="mgrTitle" style="text-align: center; letter-spacing: 4px; font-weight: 900; margin-bottom: 30px;">FOLDER MANAGER</h3>
-            <div style="display: flex; gap: 10px; margin-bottom: 30px;">
-                <input type="text" id="newFolderName" class="glass-input" style="flex: 1;" placeholder="Name...">
-                <button class="mega-btn btn-primary" style="padding: 10px 25px;" onclick="core.createFolder()">ADD</button>
+    <div id="overFolder" class="full-overlay" onclick="ui.closeOverlays(event)">
+        <div class="overlay-box" onclick="event.stopPropagation()">
+            <h2 id="overFolTitle" style="text-align:center; margin-bottom:25px; letter-spacing:2px;">FOLDER MANAGER</h2>
+            <div style="display:flex; gap:10px; margin-bottom:25px;">
+                <input type="text" id="newFolName" class="main-input" style="flex:1;" placeholder="New folder name...">
+                <button class="mega-btn btn-main" style="padding:10px 20px; grid-column:auto;" onclick="engine.createFolder()">ADD</button>
             </div>
-            <div id="folderListContainer"></div>
-            <button class="mega-btn btn-ghost" style="width: 100%; margin-top: 25px;" onclick="overlays.hideOverlay('overlayFolderMgr')">EXIT MANAGER</button>
+            <div id="folMgrList"></div>
+            <button class="mega-btn btn-sub" style="width:100%; margin-top:20px;" onclick="ui.hide('overFolder')">EXIT</button>
         </div>
     </div>
 
-    <div id="overlayFolderScripts" class="overlay-master" onclick="overlays.closeAll(event)">
-        <div class="overlay-content" onclick="event.stopPropagation()">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px;">
-                <button class="mega-btn btn-ghost" style="padding: 10px 20px;" onclick="overlays.hideOverlay('overlayFolderScripts')">← BACK</button>
-                <b id="activeFolderName" style="color: var(--primary-color); font-size: 20px;">FOLDER NAME</b>
+    <div id="overInside" class="full-overlay" onclick="ui.closeOverlays(event)">
+        <div class="overlay-box" onclick="event.stopPropagation()">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
+                <button class="mega-btn btn-sub" style="padding:8px 15px;" onclick="ui.hide('overInside')">← BACK</button>
+                <b id="activeFolderName" style="color:var(--primary-color); font-size:18px;">ROOT</b>
             </div>
-
-            <div class="quick-add-box" style="background: rgba(255,255,255,0.02); border: 1px dashed var(--primary-color); padding: 25px; border-radius: 30px; margin-bottom: 30px;">
-                <p style="font-size: 10px; font-weight: 900; color: var(--primary-color); margin-bottom: 15px;">FAST ADD TO THIS FOLDER</p>
-                <input type="text" id="qAddName" class="glass-input" placeholder="Alias" style="margin-bottom: 12px; font-size: 12px; padding: 12px;">
-                <input type="text" id="qAddSource" class="glass-input" placeholder="Source URL" style="margin-bottom: 15px; font-size: 12px; padding: 12px;">
-                <button class="mega-btn btn-primary" style="width: 100%;" onclick="core.quickAdd()">ADD SCRIPT</button>
-            </div>
-
-            <div id="folderInnerContent"></div>
+            <div id="folderScripts"></div>
         </div>
     </div>
 
     <script>
         /**
-         * FIREBASE INITIALIZATION
+         * FIREBASE CONFIGURATION
          */
-        const FIREBASE_CONFIG = {
+        const FB_CONFIG = {
             apiKey: "AIzaSyDhhcyOXdcHrz5KG3TZrrj6grwaeSxKHVk",
             authDomain: "mysotarage.firebaseapp.com",
             projectId: "mysotarage",
             storageBucket: "mysotarage.firebasestorage.app",
             messagingSenderId: "940605681719",
             appId: "1:940605681719:web:63dc21b0d11f30fdfacfb2",
-            measurementId: "G-ZMEXJTBDB7",
             databaseURL: "https://mysotarage-default-rtdb.firebaseio.com"
         };
 
-        firebase.initializeApp(FIREBASE_CONFIG);
-        
+        firebase.initializeApp(FB_CONFIG);
         const auth = firebase.auth();
         const rtdb = firebase.database();
-        const googleProvider = new firebase.auth.GoogleAuthProvider();
+        const provider = new firebase.auth.GoogleAuthProvider();
 
         /**
-         * TRANSLATION DICTIONARY (DETAILED)
+         * LANGUAGE REPOSITORY
          */
-        const DICTIONARY = {
+        const LANG_PACKS = {
             en: {
-                save: "💾 Save Script",
-                update: "🔄 Update Data",
-                cancel: "❌ Cancel Edit",
-                clear: "🧹 Clear",
-                copy: "✂️ Quick Copy",
-                manage: "📂 Manage Folder Structure",
-                push: "☁️ Cloud Push",
-                pull: "📥 Cloud Pull",
-                searchPlaceholder: "Search script database...",
-                favHeader: "STARRED FAVORITES",
-                folderHeader: "DIRECTORY STRUCTURE",
-                defaultFolder: "Root / No Folder",
-                labelStrict: "Strict URL",
-                labelAls: "Auto LS",
-                labelFolders: "Use Folders",
-                confirmDelete: "Confirm deletion?",
-                toastSaved: "DATA SECURED",
-                toastCopied: "COPIED TO CLIPBOARD",
-                toastLogout: "SESSION TERMINATED",
-                toastLogin: "WELCOME BACK",
-                toastSync: "DATABASE SYNCHRONIZED"
+                save: "Save Script", update: "Update Script", cancel: "Cancel", clear: "Clear", copy: "Copy",
+                manage: "Manage Hierarchy", push: "Push", pull: "Pull", search: "Search archives...",
+                strict: "Strict URL", als: "Auto LS", fol: "Folders", lblFol: "Folder Selection",
+                lblNam: "Alias / Name", lblSrc: "Code / URL", toastSaved: "DATA SECURED", 
+                toastCopied: "CLIPBOARD UPDATED", noFol: "No Folder Selected", searchLabel: "Database Search",
+                confirm: "Are you sure?"
             },
             ru: {
-                save: "💾 Сохранить скрипт",
-                update: "🔄 Обновить данные",
-                cancel: "❌ Отменить правку",
-                clear: "🧹 Очистить",
-                copy: "✂️ Быстрая копия",
-                manage: "📂 Настроить папки",
-                push: "☁️ Отправить в облако",
-                pull: "📥 Загрузить из облака",
-                searchPlaceholder: "Поиск по базе данных...",
-                favHeader: "ИЗБРАННЫЕ СКРИПТЫ",
-                folderHeader: "ВАШИ ПАПКИ",
-                defaultFolder: "Без категории",
-                labelStrict: "Строгий URL",
-                labelAls: "Авто-LS",
-                labelFolders: "Папки",
-                confirmDelete: "Подтвердить удаление?",
-                toastSaved: "ДАННЫЕ СОХРАНЕНЫ",
-                toastCopied: "СКОПИРОВАНО",
-                toastLogout: "СЕССИЯ ЗАВЕРШЕНА",
-                toastLogin: "ДОБРО ПОЖАЛОВАТЬ",
-                toastSync: "ОБЛАКО СИНХРОНИЗИРОВАНО"
+                save: "Сохранить", update: "Обновить", cancel: "Отмена", clear: "Очистить", copy: "Копия",
+                manage: "Управление папками", push: "В облако", pull: "Из облака", search: "Поиск в архиве...",
+                strict: "Строгий URL", als: "Авто-LS", fol: "Папки", lblFol: "Выбор папки",
+                lblNam: "Название", lblSrc: "Код / Ссылка", toastSaved: "СОХРАНЕНО", 
+                toastCopied: "СКОПИРОВАНО В БУФЕР", noFol: "Без категории", searchLabel: "Поиск по базе",
+                confirm: "Вы уверены?"
             }
         };
 
         /**
-         * APPLICATION CORE STATE & METHODS
+         * ENGINE CORE - DATA AND UI SYNC
          */
-        const core = {
-            scripts: JSON.parse(localStorage.getItem('ls_v76_scripts') || "[]"),
-            folders: JSON.parse(localStorage.getItem('ls_v76_folders') || "[]"),
-            language: localStorage.getItem('ls_v76_lang') || 'en',
-            editingId: null,
+        const engine = {
+            scripts: JSON.parse(localStorage.getItem('v77_scripts') || "[]"),
+            folders: JSON.parse(localStorage.getItem('v77_folders') || "[]"),
+            lang: localStorage.getItem('v77_lang') || 'en',
+            editId: null,
 
-            /**
-             * Initialize application
-             */
             init() {
-                console.log("[Core] Initializing Application Engine...");
-                this.applyLanguage();
-                this.handleThemeChange();
-                this.renderMainList();
+                console.log("[Engine] Initializing Adaptive Controller...");
+                this.updateLanguage();
+                this.updateTheme();
+                this.render();
                 this.updateStats();
+                this.logDiagnostics();
             },
 
-            /**
-             * Notify User
-             * @param {string} text 
-             */
-            notify(text) {
-                const toast = document.getElementById('mainToast');
-                toast.innerText = text;
-                toast.classList.add('visible');
-                setTimeout(() => toast.classList.remove('visible'), 2500);
+            logDiagnostics() {
+                console.log(`[Diagnostics] Screen: ${window.innerWidth}x${window.innerHeight}`);
+                console.log(`[Diagnostics] Pixel Ratio: ${window.devicePixelRatio}`);
             },
 
-            /**
-             * Update visual counters
-             */
+            notify(txt) {
+                const t = document.getElementById('uiToast');
+                t.innerText = txt;
+                t.classList.add('show');
+                setTimeout(() => t.classList.remove('show'), 2500);
+            },
+
             updateStats() {
-                document.getElementById('statScripts').innerText = this.scripts.length;
-                document.getElementById('statFolders').innerText = this.folders.length;
+                document.getElementById('stScripts').innerText = this.scripts.length;
+                document.getElementById('stFolders').innerText = this.folders.length;
             },
 
-            /**
-             * Change language dynamically
-             */
-            handleLanguageChange() {
-                this.language = document.getElementById('uiLang').value;
-                localStorage.setItem('ls_v76_lang', this.language);
-                this.applyLanguage();
-                this.renderMainList();
-            },
+            updateLanguage() {
+                this.lang = document.getElementById('selLang').value;
+                localStorage.setItem('v77_lang', this.lang);
+                const p = LANG_PACKS[this.lang];
 
-            applyLanguage() {
-                const d = DICTIONARY[this.language];
-                document.getElementById('uiLang').value = this.language;
+                document.getElementById('txtStrict').innerText = p.strict;
+                document.getElementById('txtAls').innerText = p.als;
+                document.getElementById('txtFol').innerText = p.fol;
+                document.getElementById('lblFol').innerText = p.lblFol;
+                document.getElementById('lblNam').innerText = p.lblNam;
+                document.getElementById('lblSrc').innerText = p.lblSrc;
+                document.getElementById('inSearch').placeholder = p.search;
+                document.getElementById('txtSearchLabel').innerText = p.searchLabel;
                 
-                // Labels
-                document.getElementById('labelStrict').innerText = d.labelStrict;
-                document.getElementById('labelAls').innerText = d.labelAls;
-                document.getElementById('labelFolders').innerText = d.labelFolders;
-                document.getElementById('searchInput').placeholder = d.searchPlaceholder;
-                
-                // Buttons
-                document.getElementById('textSave').innerText = this.editingId ? d.update : d.save;
-                document.getElementById('textCancel').innerText = d.cancel;
-                document.getElementById('textClear').innerText = d.clear;
-                document.getElementById('textCopy').innerText = d.copy;
-                document.getElementById('textManage').innerText = d.manage;
-                document.getElementById('textPush').innerText = d.push;
-                document.getElementById('textPull').innerText = d.pull;
+                document.getElementById('txtSave').innerText = this.editId ? p.update : p.save;
+                document.getElementById('txtCancel').innerText = p.cancel;
+                document.getElementById('txtClear').innerText = p.clear;
+                document.getElementById('txtCopy').innerText = p.copy;
+                document.getElementById('txtManage').innerText = p.manage;
+                document.getElementById('txtPush').innerText = p.push;
+                document.getElementById('txtPull').innerText = p.pull;
+
+                this.render();
             },
 
-            /**
-             * Change UI themes
-             */
-            handleThemeChange() {
-                const theme = document.getElementById('uiTheme').value;
-                const mode = document.getElementById('uiMode').value;
-                document.body.className = `theme-${theme} ${mode}`;
+            updateTheme() {
+                const t = document.getElementById('selTheme').value;
+                const m = document.getElementById('selMode').value;
+                document.body.className = `theme-${t} ${m}`;
             },
 
-            handleDisplayModeChange() {
-                this.handleThemeChange();
+            toggleFolderInput() {
+                const active = document.getElementById('chkFol').checked;
+                const group = document.getElementById('folGroup');
+                group.style.display = active ? 'flex' : 'none';
             },
 
-            /**
-             * Input processing
-             */
-            toggleFolderSelect() {
-                const enabled = document.getElementById('prefFolders').checked;
-                const group = document.getElementById('folderInputGroup');
-                const select = document.getElementById('inputFolder');
-                
-                group.style.opacity = enabled ? "1" : "0.4";
-                select.disabled = !enabled;
-                if (!enabled) select.value = "";
-            },
-
-            /**
-             * Core Logic: Code Transformation
-             */
-            processRawInput(raw, strict, als) {
-                let processed = raw.trim();
-                if (!processed) return null;
-
-                if (strict) {
-                    // Pastebin Raw Fix
-                    if (processed.includes("pastebin.com/") && !processed.includes("pastebin.com/raw/")) {
-                        processed = processed.replace(/pastebin\.com\/([a-zA-Z0-9]+)/, "pastebin.com/raw/$1");
-                    }
-                    // Github Raw Fix
-                    if (processed.includes("github.com/") && processed.includes("/blob/")) {
-                        processed = processed.replace("github.com", "raw.githubusercontent.com").replace("/blob/", "/");
-                    }
+            process(raw, strict, als) {
+                let code = raw.trim();
+                if(!code) return null;
+                if(strict) {
+                    if(code.includes("pastebin.com/") && !code.includes("/raw/")) code = code.replace("pastebin.com/", "pastebin.com/raw/");
+                    if(code.includes("github.com/") && code.includes("/blob/")) code = code.replace("github.com", "raw.githubusercontent.com").replace("/blob/", "/");
                 }
-
-                if (als) {
-                    return `loadstring(game:HttpGet("${processed}"))()`;
-                }
-                return processed;
+                return als ? `loadstring(game:HttpGet("${code}"))()` : code;
             },
 
-            /**
-             * CRUD: Save Script
-             */
             saveScript() {
-                const name = document.getElementById('inputName').value || "Unnamed Masterpiece";
-                const raw = document.getElementById('inputSource').value;
-                const strict = document.getElementById('prefStrict').checked;
-                const als = document.getElementById('prefAls').checked;
+                const name = document.getElementById('inNam').value || "Unnamed";
+                const raw = document.getElementById('inSrc').value;
+                const strict = document.getElementById('chkStrict').checked;
+                const als = document.getElementById('chkAls').checked;
                 
-                const code = this.processRawInput(raw, strict, als);
-                if (!code) return;
+                const code = this.process(raw, strict, als);
+                if(!code) return;
 
-                let tag = "No Folder";
-                if (document.getElementById('prefFolders').checked) {
-                    tag = document.getElementById('inputFolder').value || "No Folder";
-                }
+                const tag = document.getElementById('chkFol').checked ? (document.getElementById('inFol').value || "No Folder") : "No Folder";
 
-                if (this.editingId) {
-                    const target = this.scripts.find(s => s.id === this.editingId);
-                    if (target) {
-                        target.name = name;
-                        target.tag = tag;
-                        target.code = code;
-                        target.raw = raw;
+                if(this.editId) {
+                    const idx = this.scripts.findIndex(s => s.id === this.editId);
+                    if(idx !== -1) {
+                        this.scripts[idx] = { ...this.scripts[idx], name, tag, code, raw };
                     }
-                    this.exitEditMode();
+                    this.stopEdit();
                 } else {
-                    const newScript = {
-                        id: Date.now(),
-                        name: name,
-                        tag: tag,
-                        code: code,
-                        raw: raw,
-                        fav: false,
-                        created: new Date().toISOString()
-                    };
-                    this.scripts.unshift(newScript);
+                    this.scripts.unshift({ id: Date.now(), name, tag, code, raw, fav: false });
                 }
 
-                this.syncAll();
-                this.notify(DICTIONARY[this.language].toastSaved);
+                this.sync();
+                this.notify(LANG_PACKS[this.lang].toastSaved);
             },
 
-            /**
-             * CRUD: Quick Add within folder
-             */
-            quickAdd() {
-                const name = document.getElementById('qAddName').value || "Quick Script";
-                const raw = document.getElementById('qAddSource').value;
-                const tag = document.getElementById('activeFolderName').dataset.rawName;
-                
-                const code = this.processRawInput(raw, true, true);
-                if (!code) return;
-
-                this.scripts.unshift({
-                    id: Date.now(),
-                    name: name,
-                    tag: tag,
-                    code: code,
-                    raw: raw,
-                    fav: false
-                });
-
-                document.getElementById('qAddName').value = "";
-                document.getElementById('qAddSource').value = "";
-                
-                this.syncAll();
-                overlays.openFolderScripts(tag);
-            },
-
-            /**
-             * CRUD: Folders
-             */
-            createFolder() {
-                const input = document.getElementById('newFolderName');
-                const name = input.value.trim();
-                
-                if (name && !this.folders.includes(name)) {
-                    this.folders.push(name);
-                    input.value = "";
-                    this.syncAll();
-                    overlays.renderFolderManagerList();
-                }
-            },
-
-            deleteFolder(name) {
-                if (confirm(DICTIONARY[this.language].confirmDelete)) {
-                    // Re-assign scripts to Root
-                    this.scripts.forEach(s => {
-                        if (s.tag === name) s.tag = "No Folder";
-                    });
-                    this.folders = this.folders.filter(f => f !== name);
-                    this.syncAll();
-                    overlays.renderFolderManagerList();
-                }
-            },
-
-            /**
-             * Data Sync
-             */
-            syncAll() {
-                console.log("[Core] Syncing Local Storage...");
-                localStorage.setItem('ls_v76_scripts', JSON.stringify(this.scripts));
-                localStorage.setItem('ls_v76_folders', JSON.stringify(this.folders));
-                this.renderMainList();
+            sync() {
+                localStorage.setItem('v77_scripts', JSON.stringify(this.scripts));
+                localStorage.setItem('v77_folders', JSON.stringify(this.folders));
+                this.render();
                 this.updateStats();
-                
-                // Auto-sync to Cloud if logged in
-                if (auth.currentUser) {
-                    cloud.pushData(true);
-                }
+                if(auth.currentUser) cloud.push(true);
             },
 
-            /**
-             * Rendering Engine
-             */
-            renderMainList() {
-                const query = document.getElementById('searchInput').value.toLowerCase();
-                const container = document.getElementById('mainContentList');
+            render() {
+                const q = document.getElementById('inSearch').value.toLowerCase();
+                const container = document.getElementById('mainContent');
                 container.innerHTML = "";
 
-                // Update Folder Select in Form
-                const folderSel = document.getElementById('inputFolder');
-                const currentVal = folderSel.value;
-                folderSel.innerHTML = `<option value="">${DICTIONARY[this.language].defaultFolder}</option>` + 
+                // Update select dropdown
+                const sel = document.getElementById('inFol');
+                const cur = sel.value;
+                sel.innerHTML = `<option value="">${LANG_PACKS[this.lang].noFol}</option>` + 
                     this.folders.map(f => `<option value="${f}">${f}</option>`).join('');
-                folderSel.value = this.folders.includes(currentVal) ? currentVal : "";
+                sel.value = this.folders.includes(cur) ? cur : "";
 
-                if (query.length > 0) {
-                    // Search Mode
-                    const filtered = this.scripts.filter(s => s.name.toLowerCase().includes(query));
-                    filtered.forEach(s => container.appendChild(this.createScriptCard(s)));
+                if(q) {
+                    const filtered = this.scripts.filter(s => s.name.toLowerCase().includes(q));
+                    filtered.forEach(s => container.appendChild(this.createCard(s)));
                 } else {
-                    // Normal Mode: Favs then Folders
                     const favs = this.scripts.filter(s => s.fav);
-                    if (favs.length > 0) {
-                        container.innerHTML += `<div class="section-divider"><span class="divider-text">${DICTIONARY[this.language].favHeader}</span><div class="divider-line"></div></div>`;
-                        favs.forEach(s => container.appendChild(this.createScriptCard(s)));
+                    if(favs.length) {
+                        container.innerHTML += `<div class="divider"><span class="divider-text">Favorites</span><div class="divider-line"></div></div>`;
+                        favs.forEach(s => container.appendChild(this.createCard(s)));
                     }
 
-                    container.innerHTML += `<div class="section-divider"><span class="divider-text">${DICTIONARY[this.language].folderHeader}</span><div class="divider-line"></div></div>`;
-                    
-                    const allFolders = ["No Folder", ...this.folders];
-                    allFolders.forEach(f => {
+                    container.innerHTML += `<div class="divider"><span class="divider-text">Folders</span><div class="divider-line"></div></div>`;
+                    ["No Folder", ...this.folders].forEach(f => {
                         const count = this.scripts.filter(s => s.tag === f).length;
-                        const card = document.createElement('div');
-                        card.className = "script-card";
-                        card.onclick = () => overlays.openFolderScripts(f);
-                        card.innerHTML = `
-                            <div class="card-info">
-                                <span class="card-title">📁 ${f === "No Folder" ? DICTIONARY[this.language].defaultFolder : f}</span>
-                                <span class="card-tag">${count} scripts archived</span>
-                            </div>
-                            <div class="action-icon">→</div>
-                        `;
-                        container.appendChild(card);
+                        const div = document.createElement('div');
+                        div.className = "script-card";
+                        div.onclick = () => this.openFolder(f);
+                        div.innerHTML = `<div class="card-meta"><b>📁 ${f === "No Folder" ? LANG_PACKS[this.lang].noFol : f}</b><span>${count} SCRIPTS</span></div><div class="icon-btn">→</div>`;
+                        container.appendChild(div);
                     });
                 }
             },
 
-            createScriptCard(s) {
-                const card = document.createElement('div');
-                card.className = "script-card";
-                card.onclick = () => {
-                    navigator.clipboard.writeText(s.code);
-                    this.notify(DICTIONARY[this.language].toastCopied);
-                };
-
-                card.innerHTML = `
-                    <div class="card-info">
-                        <span class="card-title">${s.name}</span>
-                        <span class="card-tag">${s.tag}</span>
-                    </div>
-                    <div class="card-actions">
-                        <div class="action-icon fav ${s.fav ? 'active' : ''}" onclick="event.stopPropagation(); core.toggleFavorite(${s.id})">★</div>
-                        <div class="action-icon" onclick="event.stopPropagation(); overlays.showCode(${s.id})">👁️</div>
-                        <div class="action-icon" onclick="event.stopPropagation(); core.enterEditMode(${s.id})">✏️</div>
-                        <div class="action-icon" style="color: var(--error-color)" onclick="event.stopPropagation(); core.deleteScript(${s.id})">🗑️</div>
+            createCard(s) {
+                const div = document.createElement('div');
+                div.className = "script-card";
+                div.onclick = () => { navigator.clipboard.writeText(s.code); this.notify(LANG_PACKS[this.lang].toastCopied); };
+                div.innerHTML = `
+                    <div class="card-meta"><b>${s.name}</b><span>${s.tag}</span></div>
+                    <div class="card-icons">
+                        <div class="icon-btn ${s.fav?'active':''}" onclick="event.stopPropagation(); engine.toggleFav(${s.id})">★</div>
+                        <div class="icon-btn" onclick="event.stopPropagation(); engine.viewSource(${s.id})">👁️</div>
+                        <div class="icon-btn" onclick="event.stopPropagation(); engine.startEdit(${s.id})">✏️</div>
+                        <div class="icon-btn" style="color:var(--error-color)" onclick="event.stopPropagation(); engine.deleteScript(${s.id})">🗑️</div>
                     </div>
                 `;
-                return card;
+                return div;
             },
 
-            /**
-             * Script Actions
-             */
-            toggleFavorite(id) {
+            toggleFav(id) {
                 const s = this.scripts.find(x => x.id === id);
-                if (s) {
-                    s.fav = !s.fav;
-                    this.syncAll();
+                if(s) s.fav = !s.fav;
+                this.sync();
+            },
+
+            viewSource(id) {
+                const s = this.scripts.find(x => x.id === id);
+                if(s) {
+                    document.getElementById('overCodeTitle').innerText = s.name.toUpperCase();
+                    document.getElementById('overCodePre').innerText = s.code;
+                    ui.show('overCode');
                 }
+            },
+
+            startEdit(id) {
+                const s = this.scripts.find(x => x.id === id);
+                if(!s) return;
+                this.editId = id;
+                document.getElementById('inNam').value = s.name;
+                document.getElementById('inSrc').value = s.raw;
+                document.getElementById('chkFol').checked = (s.tag !== "No Folder");
+                this.toggleFolderInput();
+                document.getElementById('inFol').value = s.tag === "No Folder" ? "" : s.tag;
+                document.getElementById('btnCancel').style.display = "flex";
+                this.updateLanguage();
+                ui.hideAll();
+                window.scrollTo({top:0, behavior:'smooth'});
+            },
+
+            stopEdit() {
+                this.editId = null;
+                this.clearInputs();
+                document.getElementById('btnCancel').style.display = "none";
+                this.updateLanguage();
             },
 
             deleteScript(id) {
-                if (confirm(DICTIONARY[this.language].confirmDelete)) {
-                    this.scripts = this.scripts.filter(x => x.id !== id);
-                    this.syncAll();
-                    // If we are inside folder view, refresh it
-                    if (document.getElementById('overlayFolderScripts').style.display === 'block') {
-                        const active = document.getElementById('activeFolderName').dataset.rawName;
-                        overlays.openFolderScripts(active);
+                if(confirm(LANG_PACKS[this.lang].confirm)) {
+                    this.scripts = this.scripts.filter(s => s.id !== id);
+                    this.sync();
+                    if(document.getElementById('overInside').style.display === 'block') {
+                        this.openFolder(document.getElementById('activeFolderName').innerText);
                     }
                 }
             },
 
-            enterEditMode(id) {
-                const s = this.scripts.find(x => x.id === id);
-                if (!s) return;
-
-                this.editingId = id;
-                document.getElementById('inputName').value = s.name;
-                document.getElementById('inputSource').value = s.raw;
-                document.getElementById('prefFolders').checked = (s.tag !== "No Folder");
-                this.toggleFolderSelect();
-                document.getElementById('inputFolder').value = (s.tag === "No Folder" ? "" : s.tag);
-
-                document.getElementById('btnSave').classList.add('btn-primary');
-                document.getElementById('btnCancel').style.display = 'flex';
-                this.applyLanguage();
-                
-                overlays.closeAll();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+            openFolder(f) {
+                const title = document.getElementById('activeFolderName');
+                title.innerText = f;
+                const container = document.getElementById('folderScripts');
+                container.innerHTML = "";
+                const filtered = this.scripts.filter(s => s.tag === f);
+                if(filtered.length === 0) container.innerHTML = `<p style="text-align:center; opacity:0.3; padding:20px;">Empty folder</p>`;
+                filtered.forEach(s => container.appendChild(this.createCard(s)));
+                ui.show('overInside');
             },
 
-            exitEditMode() {
-                this.editingId = null;
-                this.clearInputs();
-                document.getElementById('btnCancel').style.display = 'none';
-                this.applyLanguage();
+            openFolderManager() {
+                ui.show('overFolder');
+                this.renderMgr();
             },
 
-            clearInputs() {
-                document.getElementById('inputName').value = "";
-                document.getElementById('inputSource').value = "";
-                document.getElementById('inputFolder').value = "";
-            },
-
-            copyToClipboardFromInput() {
-                const raw = document.getElementById('inputSource').value;
-                const c = this.processRawInput(raw, document.getElementById('prefStrict').checked, document.getElementById('prefAls').checked);
-                if (c) {
-                    navigator.clipboard.writeText(c);
-                    this.notify(DICTIONARY[this.language].toastCopied);
-                }
-            }
-        };
-
-        /**
-         * OVERLAY CONTROL SYSTEM
-         */
-        const overlays = {
-            showOverlay(id) {
-                document.getElementById(id).style.display = 'block';
-                document.body.style.overflow = 'hidden';
-            },
-
-            hideOverlay(id) {
-                document.getElementById(id).style.display = 'none';
-                document.body.style.overflow = 'auto';
-            },
-
-            closeAll(e) {
-                const ids = ['overlayView', 'overlayFolderMgr', 'overlayFolderScripts'];
-                ids.forEach(id => document.getElementById(id).style.display = 'none');
-                document.body.style.overflow = 'auto';
-            },
-
-            showCode(id) {
-                const s = core.scripts.find(x => x.id === id);
-                if (s) {
-                    document.getElementById('viewTitle').innerText = s.name.toUpperCase();
-                    document.getElementById('viewPre').innerText = s.code;
-                    this.showOverlay('overlayView');
-                }
-            },
-
-            showFolderManager() {
-                this.renderFolderManagerList();
-                this.showOverlay('overlayFolderMgr');
-            },
-
-            renderFolderManagerList() {
-                const box = document.getElementById('folderListContainer');
+            renderMgr() {
+                const box = document.getElementById('folMgrList');
                 box.innerHTML = "";
-                core.folders.forEach(f => {
-                    const row = document.createElement('div');
-                    row.className = "script-card";
-                    row.style.cursor = "default";
-                    row.innerHTML = `
-                        <b>${f}</b>
-                        <button class="mega-btn btn-danger" style="padding: 6px 15px; font-size: 10px; border-radius: 10px;" onclick="core.deleteFolder('${f}')">REMOVE</button>
-                    `;
-                    box.appendChild(row);
+                this.folders.forEach(f => {
+                    const div = document.createElement('div');
+                    div.className = "script-card";
+                    div.style.cursor = "default";
+                    div.innerHTML = `<b>${f}</b><button class="mega-btn btn-warn" style="padding:6px 12px; font-size:9px;" onclick="engine.deleteFolder('${f}')">DEL</button>`;
+                    box.appendChild(div);
                 });
             },
 
-            openFolderScripts(name) {
-                document.getElementById('activeFolderName').innerText = (name === "No Folder" ? DICTIONARY[core.language].defaultFolder : name).toUpperCase();
-                document.getElementById('activeFolderName').dataset.rawName = name;
-                
-                const box = document.getElementById('folderInnerContent');
-                box.innerHTML = "";
-                const filtered = core.scripts.filter(s => s.tag === name);
-                
-                if (filtered.length === 0) {
-                    box.innerHTML = `<p style="text-align: center; opacity: 0.3; padding: 40px;">No scripts in this directory.</p>`;
-                } else {
-                    filtered.forEach(s => box.appendChild(core.createScriptCard(s)));
+            createFolder() {
+                const n = document.getElementById('newFolName').value.trim();
+                if(n && !this.folders.includes(n)) {
+                    this.folders.push(n);
+                    document.getElementById('newFolName').value = "";
+                    this.sync();
+                    this.renderMgr();
                 }
-                
-                this.showOverlay('overlayFolderScripts');
+            },
+
+            deleteFolder(f) {
+                if(confirm(LANG_PACKS[this.lang].confirm)) {
+                    this.scripts.forEach(s => { if(s.tag === f) s.tag = "No Folder"; });
+                    this.folders = this.folders.filter(x => x !== f);
+                    this.sync();
+                    this.renderMgr();
+                }
+            },
+
+            clearInputs() {
+                document.getElementById('inNam').value = "";
+                document.getElementById('inSrc').value = "";
+            },
+
+            copyQuick() {
+                const raw = document.getElementById('inSrc').value;
+                const c = this.process(raw, document.getElementById('chkStrict').checked, document.getElementById('chkAls').checked);
+                if(c) {
+                    navigator.clipboard.writeText(c);
+                    this.notify(LANG_PACKS[this.lang].toastCopied);
+                }
             }
         };
 
         /**
-         * CLOUD SYNCHRONIZATION (FIREBASE)
+         * CLOUD MODULE
          */
         const cloud = {
-            signIn() {
-                auth.signInWithPopup(googleProvider)
-                    .then(() => core.notify(DICTIONARY[core.language].toastLogin))
-                    .catch(e => alert("Auth Error: " + e.message));
+            doLogin() {
+                auth.signInWithPopup(provider).then(() => engine.notify("Logged In")).catch(e => alert(e.message));
             },
-
-            signOut() {
-                if (confirm("Logout from Cloud?")) {
-                    auth.signOut().then(() => core.notify(DICTIONARY[core.language].toastLogout));
-                }
+            push(silent = false) {
+                const u = auth.currentUser;
+                if(!u) return !silent && alert("Login required!");
+                rtdb.ref('backups/' + u.uid).set({ scripts: engine.scripts, folders: engine.folders, time: Date.now() })
+                    .then(() => !silent && engine.notify("Cloud Synced!"));
             },
-
-            pushData(silent = false) {
-                const user = auth.currentUser;
-                if (!user) {
-                    if (!silent) alert("Please login to use Cloud Sync!");
-                    return;
-                }
-
-                const payload = {
-                    scripts: core.scripts,
-                    folders: core.folders,
-                    lastSync: new Date().toLocaleString()
-                };
-
-                rtdb.ref('backups/' + user.uid).set(payload)
-                    .then(() => {
-                        if (!silent) core.notify(DICTIONARY[core.language].toastSync);
-                        document.getElementById('statSync').innerText = "Just now";
-                    });
-            },
-
-            pullData() {
-                const user = auth.currentUser;
-                if (!user) return alert("Please login to pull data!");
-
-                rtdb.ref('backups/' + user.uid).once('value')
-                    .then(snap => {
-                        if (snap.exists()) {
-                            const data = snap.val();
-                            core.scripts = data.scripts || [];
-                            core.folders = data.folders || [];
-                            core.syncAll();
-                            core.notify(DICTIONARY[core.language].toastSync);
-                        } else {
-                            alert("No data found on cloud.");
-                        }
-                    });
+            pull() {
+                const u = auth.currentUser;
+                if(!u) return alert("Login required!");
+                rtdb.ref('backups/' + u.uid).once('value').then(s => {
+                    if(s.exists()) {
+                        const d = s.val();
+                        engine.scripts = d.scripts || [];
+                        engine.folders = d.folders || [];
+                        engine.sync();
+                        engine.notify("Cloud Data Restored!");
+                    }
+                });
             }
         };
 
         /**
-         * AUTH STATE LISTENER
+         * UI MODULE
+         */
+        const ui = {
+            show(id) { document.getElementById(id).style.display = 'block'; document.body.style.overflow = 'hidden'; },
+            hide(id) { document.getElementById(id).style.display = 'none'; document.body.style.overflow = 'auto'; },
+            hideAll() { document.querySelectorAll('.full-overlay').forEach(o => o.style.display = 'none'); document.body.style.overflow = 'auto'; },
+            closeOverlays(e) { if(e.target.classList.contains('full-overlay')) this.hideAll(); }
+        };
+
+        /**
+         * AUTH LISTENER
          */
         auth.onAuthStateChanged(user => {
-            const container = document.getElementById('authContainer');
-            if (user) {
-                const firstName = user.displayName.split(' ')[0];
-                container.innerHTML = `<button class="auth-btn logged-in" onclick="cloud.signOut()">🔓 ${firstName.toUpperCase()}</button>`;
-                document.getElementById('statSync').innerText = "Connected";
+            const box = document.getElementById('authBox');
+            const status = document.getElementById('stCloud');
+            if(user) {
+                const name = user.displayName ? user.displayName.split(' ')[0].toUpperCase() : 'USER';
+                box.innerHTML = `<button class="login-btn" style="background:rgba(255,255,255,0.1); color:var(--primary-color); border:1px solid var(--primary-color); box-shadow:none;" onclick="auth.signOut()">🔓 ${name}</button>`;
+                status.innerText = "Online";
+                status.style.color = "var(--primary-color)";
             } else {
-                container.innerHTML = `<button class="auth-btn" onclick="cloud.signIn()">🔑 LOGIN</button>`;
-                document.getElementById('statSync').innerText = "Offline";
+                box.innerHTML = `<button class="login-btn" onclick="cloud.doLogin()">🔑 Cloud Login</button>`;
+                status.innerText = "Offline";
+                status.style.color = "inherit";
             }
         });
 
-        // Start Application
-        core.init();
+        // INIT APPLICATION
+        engine.init();
 
     </script>
 </body>
