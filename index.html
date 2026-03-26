@@ -1,157 +1,819 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Cloud Storage</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Auto Loadstring Ultimate V7.4 Cloud Edition</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
     <style>
-        /* Стильный темный интерфейс для мобильного */
+        :root {
+            --primary: #00ff88; 
+            --bg: #050505; 
+            --card: rgba(26, 26, 26, 0.65); 
+            --text: #fff; 
+            --accent: #00d4ff; 
+            --err: #ff4444;
+            --container-w: 500px;
+            --grad: linear-gradient(45deg, var(--primary), var(--accent));
+            --shadow-color: rgba(0, 255, 136, 0.2);
+            --glow-color: rgba(0, 255, 136, 0.1);
+        }
+
+        /* --- ЦВЕТОВЫЕ ТЕМЫ --- */
+        body.theme-emerald { 
+            --primary: #00ff88; 
+            --accent: #0088ff; 
+            --grad: linear-gradient(45deg, #00ff88, #0088ff);
+        }
+
+        body.theme-ocean { 
+            --primary: #00d4ff; 
+            --accent: #0044ff; 
+            --grad: linear-gradient(45deg, #00d4ff, #0044ff);
+        }
+
+        body.theme-sunset { 
+            --primary: #ffcc00; 
+            --accent: #ff4400; 
+            --grad: linear-gradient(45deg, #ffcc00, #ff4400);
+        }
+
+        body.theme-royal { 
+            --primary: #bd93f9; 
+            --accent: #ff79c6; 
+            --grad: linear-gradient(45deg, #bd93f9, #ff79c6);
+        }
+
+        /* --- РЕЖИМЫ ОТОБРАЖЕНИЯ --- */
+        body.pc-mode { --container-w: 900px; }
+        body.mobile-mode { --container-w: 100%; }
+
+        /* --- АНИМАЦИИ ФОНА --- */
+        @keyframes floatBlob { 
+            0% { transform: translate(0, 0) scale(1) rotate(0deg); } 
+            33% { transform: translate(15vw, 15vh) scale(1.2) rotate(90deg); }
+            66% { transform: translate(-10vw, 20vh) scale(0.8) rotate(180deg); }
+            100% { transform: translate(0, 0) scale(1) rotate(360deg); } 
+        }
+
+        @keyframes glow { 
+            0%, 100% { filter: drop-shadow(0 0 5px var(--primary)); } 
+            50% { filter: drop-shadow(0 0 15px var(--accent)); } 
+        }
+
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(10px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+
+        /* --- ОБЩИЕ СТИЛИ --- */
+        * { 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent; 
+        }
+
+        html, body { 
+            min-height: 100vh; 
+            margin: 0; 
+            overflow-x: hidden; 
+        }
+
         body { 
-            font-family: 'Segoe UI', sans-serif; 
-            background: #121212; 
-            color: white; 
             display: flex; 
             justify-content: center; 
-            align-items: center; 
+            padding: 20px; 
+            background: var(--bg); 
+            color: var(--text); 
+            font-family: 'Segoe UI', system-ui, sans-serif; 
+            position: relative; 
+            -webkit-user-select: none; 
+            user-select: none; 
+        }
+
+        input, select, pre { 
+            -webkit-user-select: text; 
+            user-select: text; 
+        }
+
+        .live-bg { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100vw; 
             height: 100vh; 
-            margin: 0; 
+            z-index: -1; 
+            overflow: hidden; 
+            background: #050505; 
         }
-        .app-card { 
-            background: #1e1e1e; 
+
+        .blob { 
+            position: absolute; 
+            border-radius: 50%; 
+            filter: blur(90px); 
+            opacity: 0.55; 
+            animation: floatBlob 25s infinite ease-in-out; 
+        }
+
+        .blob-1 { width: 55vw; height: 55vw; background: var(--primary); top: -10%; left: -10%; }
+        .blob-2 { width: 65vw; height: 65vw; background: var(--accent); bottom: -15%; right: -10%; animation-duration: 30s; animation-direction: reverse; }
+        .blob-3 { width: 45vw; height: 45vw; background: var(--grad); top: 35%; left: 25%; animation-duration: 35s; animation-delay: -5s; }
+
+        .container { 
+            width: 100%; 
+            max-width: var(--container-w); 
+            background: var(--card); 
+            backdrop-filter: blur(25px); 
+            -webkit-backdrop-filter: blur(25px); 
             padding: 25px; 
-            border-radius: 20px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
-            width: 90%; 
-            max-width: 350px; 
-            text-align: center; 
-            border: 1px solid #333;
+            border-radius: 30px; 
+            border: 1px solid rgba(255,255,255,0.1); 
+            box-shadow: 0 25px 50px rgba(0,0,0,0.6); 
+            animation: fadeIn 0.5s ease; 
+            position: relative; 
+            z-index: 10; 
         }
-        h2 { color: #00d4ff; margin-top: 0; }
-        #status { font-size: 14px; color: #888; margin-bottom: 15px; }
-        
+
+        h2 { 
+            text-align: center; 
+            font-size: 24px; 
+            font-weight: 900; 
+            background: var(--grad); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            animation: glow 3s infinite; 
+            margin-bottom: 25px; 
+        }
+
+        .settings { 
+            display: flex; 
+            flex-wrap: wrap; 
+            justify-content: center; 
+            gap: 8px; 
+            background: rgba(255,255,255,0.05); 
+            padding: 10px; 
+            border-radius: 20px; 
+            margin-bottom: 20px; 
+        }
+
+        select { 
+            background: rgba(0,0,0,0.5); 
+            color: #fff; 
+            border: 1px solid rgba(255,255,255,0.1); 
+            padding: 8px 12px; 
+            border-radius: 12px; 
+            font-size: 11px; 
+            cursor: pointer; 
+            outline: none; 
+        }
+
+        .input-box { margin-bottom: 15px; }
+
+        .input-box label { 
+            font-size: 10px; 
+            color: var(--primary); 
+            margin-left: 10px; 
+            display: block; 
+            margin-bottom: 5px; 
+            text-transform: uppercase; 
+            font-weight: bold; 
+        }
+
         input { 
             width: 100%; 
-            padding: 12px; 
-            margin: 10px 0; 
-            border-radius: 10px; 
-            border: 1px solid #444; 
-            background: #252525; 
-            color: white; 
-            box-sizing: border-box; 
-            outline: none;
+            padding: 14px; 
+            border-radius: 15px; 
+            border: 2px solid rgba(255,255,255,0.05); 
+            background: rgba(0,0,0,0.4); 
+            color: #fff; 
+            font-size: 14px; 
+            outline: none; 
         }
-        input:focus { border-color: #00d4ff; }
+
+        input:focus { 
+            border-color: var(--primary); 
+            background: rgba(0,0,0,0.6); 
+            box-shadow: 0 0 15px var(--glow-color); 
+        }
+
+        .grid-main { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 10px; 
+            margin-top: 20px; 
+        }
 
         button { 
-            width: 100%; 
-            padding: 12px; 
-            margin: 8px 0; 
+            padding: 14px; 
             border: none; 
-            border-radius: 10px; 
+            border-radius: 15px; 
+            font-weight: 800; 
             cursor: pointer; 
-            font-weight: bold; 
-            transition: 0.2s; 
+            text-transform: uppercase; 
+            font-size: 11px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 8px; 
         }
-        .btn-google { background: #ea4335; color: white; }
-        .btn-save { background: #00d4ff; color: #000; }
-        .btn-import { background: #333; color: #00d4ff; border: 1px solid #00d4ff; }
-        
-        button:active { transform: scale(0.98); }
+
+        .btn-p { background: var(--grad); color: #000; }
+        .btn-a { background: #fff; color: #000; }
+        .btn-u { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.05); }
+        .btn-e { background: var(--err); color: #fff; }
+
+        .label-sep { 
+            font-size: 11px; 
+            color: var(--primary); 
+            margin: 35px 0 15px; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            font-weight: 900; 
+            text-transform: uppercase; 
+        }
+
+        .label-sep::after { 
+            content: ""; 
+            flex: 1; 
+            height: 1px; 
+            background: rgba(255,255,255,0.1); 
+        }
+
+        .card { 
+            background: rgba(255,255,255,0.03); 
+            padding: 16px; 
+            border-radius: 20px; 
+            margin-bottom: 12px; 
+            border: 1px solid rgba(255,255,255,0.05); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            cursor: pointer; 
+            backdrop-filter: blur(10px); 
+        }
+
+        .card:hover { 
+            border-color: var(--primary); 
+            background: rgba(255,255,255,0.07); 
+            transform: translateX(5px); 
+        }
+
+        .icon-btn { 
+            font-size: 17px; 
+            cursor: pointer; 
+            padding: 8px; 
+            border-radius: 10px; 
+            color: #888; 
+        }
+
+        .icon-btn:hover { 
+            background: rgba(255,255,255,0.1); 
+            color: var(--primary); 
+        }
+
+        .star.active { color: #ffcc00; filter: drop-shadow(0 0 8px #ffcc00); }
+
+        .overlay { 
+            display: none; 
+            position: fixed; 
+            inset: 0; 
+            background: rgba(0,0,0,0.85); 
+            padding: 20px; 
+            backdrop-filter: blur(25px); 
+            -webkit-backdrop-filter: blur(25px); 
+            overflow-y: auto; 
+            z-index: 1000; 
+        }
+
+        .over-content { 
+            width: 100%; 
+            max-width: 600px; 
+            margin: auto; 
+            animation: fadeIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        }
+
+        pre { 
+            background: rgba(0,0,0,0.7); 
+            color: var(--primary); 
+            padding: 20px; 
+            border-radius: 15px; 
+            font-size: 12px; 
+            border: 1px solid rgba(255,255,255,0.1); 
+            overflow-x: auto; 
+            white-space: pre-wrap; 
+            word-break: break-all; 
+        }
+
+        .toast { 
+            position: fixed; 
+            bottom: 30px; 
+            left: 50%; 
+            transform: translate(-50%, 150px); 
+            background: var(--grad); 
+            color: #000; 
+            padding: 12px 35px; 
+            border-radius: 50px; 
+            font-weight: 900; 
+            z-index: 5000; 
+            transition: 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55); 
+        }
+
+        .toast.active { transform: translate(-50%, 0); }
+
+        .quick-add-box {
+            background: rgba(255,255,255,0.03);
+            padding: 20px;
+            border-radius: 25px;
+            margin-bottom: 25px;
+            border: 1px dashed var(--primary);
+        }
     </style>
 </head>
-<body>
+<body class="mobile-mode theme-emerald">
 
-<div class="app-card">
-    <h2>Cloud Saver</h2>
-    <div id="status">Загрузка...</div>
-    
-    <button class="btn-google" id="loginBtn" style="display: none;">Войти через Google</button>
-    
-    <input type="text" id="textInput" placeholder="Введите текст для облака...">
-    
-    <button class="btn-save" id="saveBtn">💾 Сохранить</button>
-    <button class="btn-import" id="importBtn">📥 Импорт (Загрузить)</button>
+<div class="live-bg">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+<div id="toast" class="toast"></div>
+
+<div class="container">
+    <h2>AUTO LOADSTRING</h2>
+    
+    <div class="settings">
+        <select id="lang" onchange="setLang()">
+            <option value="en">English 🇺🇸</option>
+            <option value="ru">Русский 🇷🇺</option>
+        </select>
+        <select id="theme" onchange="setTheme()">
+            <option value="emerald">Emerald</option>
+            <option value="ocean">Ocean</option>
+            <option value="sunset">Sunset</option>
+            <option value="royal">Royal</option>
+        </select>
+        <select id="mode" onchange="setTheme()">
+            <option value="mobile-mode">Mobile</option>
+            <option value="pc-mode">PC Mode</option>
+        </select>
+        <button id="cloudAuthBtn" class="btn-p" style="padding: 5px 15px; font-size: 10px; border-radius: 12px;" onclick="cloudLogin()">🔑 Login</button>
+    </div>
+
+    <div style="display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; font-size: 11px; color: #aaa; font-weight: bold;">
+        <label>
+            <input type="checkbox" id="strict" checked> 
+            <span id="ui-strict">Link Only</span>
+        </label>
+        <label>
+            <input type="checkbox" id="als" checked> 
+            <span id="ui-als">Auto Loadstring</span>
+        </label>
+        <label>
+            <input type="checkbox" id="uFol" checked onchange="toggleF()"> 
+            <span id="ui-fol-toggle">Folders</span>
+        </label>
+    </div>
+
+    <div class="input-box">
+        <label id="l-fol">Folder:</label>
+        <input type="text" id="iFol" list="fList" placeholder="...">
+    </div>
+    <div class="input-box">
+        <label id="l-nam">Name:</label>
+        <input type="text" id="iNam" placeholder="...">
+    </div>
+    <div class="input-box">
+        <label id="l-url">URL / Code:</label>
+        <input type="text" id="iUrl" placeholder="...">
+    </div>
+
+    <div class="grid-main">
+        <button class="btn-p" onclick="save()" id="b-sav">💾 Save</button>
+        <button class="btn-e" onclick="cancelEdit()" id="b-can" style="display:none;">❌ Cancel</button>
+        <button class="btn-u" onclick="clearI()" id="b-clr">🧹 Clear</button>
+        <button class="btn-a" onclick="copyI()" id="b-cop">✂️ Copy</button>
+        <button class="btn-u" onclick="openMgr()" id="b-fol-mgr">📂 Folders</button>
+        
+        <button class="btn-u" onclick="cloudPush()" id="b-exp">☁️ Cloud Push</button>
+        <button class="btn-u" onclick="cloudGet()" id="b-imp" style="grid-column: span 2;">☁️ Cloud Get (Import)</button>
+    </div>
+
+    <input type="text" id="search" oninput="render()" style="margin-top:25px; background: rgba(255,255,255,0.03);">
+    
+    <div id="content"></div>
+</div>
+
+<div id="viewOver" class="overlay">
+    <div class="over-content">
+        <h3 id="viewName" style="color:var(--primary); text-align:center;">Preview</h3>
+        <pre id="viewCode"></pre>
+        <button class="btn-u" onclick="document.getElementById('viewOver').style.display='none'" style="width:100%; margin-top:15px;" id="b-cls-view">Close</button>
+    </div>
+</div>
+
+<div id="mgrOver" class="overlay">
+    <div class="over-content">
+        <h3 id="ui-mgr-h" style="text-align:center;">FOLDERS</h3>
+        <div style="display:flex; gap:10px; margin-bottom:20px;">
+            <input type="text" id="newF" style="flex:1">
+            <button class="btn-p" onclick="addF()" id="b-cre">Create</button>
+        </div>
+        <div id="mgrList"></div>
+        <button class="btn-u" onclick="closeO()" style="width:100%; margin-top:15px;" id="b-cls-mgr">Close</button>
+    </div>
+</div>
+
+<div id="folOver" class="overlay">
+    <div class="over-content">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <button class="btn-u" onclick="closeO()" id="b-bak">← Back</button>
+            <b id="activeF" style="color:var(--primary); letter-spacing: 2px;"></b>
+        </div>
+
+        <div class="quick-add-box">
+            <div style="font-size: 10px; color: var(--primary); margin-bottom: 12px; font-weight: 900;">QUICK ADD IN FOLDER</div>
+            <input type="text" id="qNam" placeholder="Name" style="margin-bottom: 10px;">
+            <input type="text" id="qUrl" placeholder="URL / Code">
+            <button class="btn-p" onclick="quickAdd()" style="width: 100%; margin-top: 15px;">ADD TO FOLDER</button>
+        </div>
+
+        <div id="folScripts"></div>
+    </div>
+</div>
+
+<datalist id="fList"></datalist>
 
 <script>
-  // Твой конфиг (уже проверенный)
-  const firebaseConfig = {
-    apiKey: "AIzaSyDhhcyOXdcHrz5KG3TZrrj6grwaeSxKHVk",
-    authDomain: "mysotarage.firebaseapp.com",
-    projectId: "mysotarage",
-    storageBucket: "mysotarage.firebasestorage.app",
-    messagingSenderId: "940605681719",
-    appId: "1:940605681719:web:63dc21b0d11f30fdfacfb2",
-    measurementId: "G-ZMEXJTBDB7",
-    databaseURL: "https://mysotarage-default-rtdb.firebaseio.com"
-  };
+    // --- FIREBASE CONFIG ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyDhhcyOXdcHrz5KG3TZrrj6grwaeSxKHVk",
+        authDomain: "mysotarage.firebaseapp.com",
+        projectId: "mysotarage",
+        storageBucket: "mysotarage.firebasestorage.app",
+        messagingSenderId: "940605681719",
+        appId: "1:940605681719:web:63dc21b0d11f30fdfacfb2",
+        measurementId: "G-ZMEXJTBDB7",
+        databaseURL: "https://mysotarage-default-rtdb.firebaseio.com"
+    };
 
-  // Инициализация
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.database();
-  const provider = new firebase.auth.GoogleAuthProvider();
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+    const provider = new firebase.auth.GoogleAuthProvider();
 
-  const statusDiv = document.getElementById('status');
-  const loginBtn = document.getElementById('loginBtn');
-  const textInput = document.getElementById('textInput');
+    // --- LANGUAGE DICTIONARY ---
+    const T = {
+        ru: {
+            sav: "💾 Сохранить", upd: "🔄 Обновить", can: "❌ Отмена", cop: "✂️ Копия", clr: "🧹 Очистить", fol: "📂 Папки", 
+            exp: "☁️ В облако", imp: "☁️ Из облака",
+            search: "Поиск скрипта...", favs: "ИЗБРАННОЕ ★", folders: "ВАШИ ПАПКИ", noFol: "Без папки",
+            lFol: "Папка:", lNam: "Название:", lUrl: "Код/URL:", mgrH: "Управление папками", cre: "Создать", cls: "Закрыть", 
+            bak: "← Назад", tSav: "Сохранено!", tCop: "Скопировано!", confirm: "Удалить?", strict: "Link Only", als: "Auto LS", folTog: "Папки"
+        },
+        en: {
+            sav: "💾 Save", upd: "🔄 Update", can: "❌ Cancel", cop: "✂️ Copy", clr: "🧹 Clear", fol: "📂 Folders", 
+            exp: "☁️ Cloud Push", imp: "☁️ Cloud Get",
+            search: "Search scripts...", favs: "FAVORITES ★", folders: "FOLDERS", noFol: "No Folder",
+            lFol: "Folder:", lNam: "Name:", lUrl: "URL/Code:", mgrH: "Folders", cre: "Create", cls: "Close", 
+            bak: "← Back", tSav: "Saved!", tCop: "Copied!", confirm: "Delete?", strict: "Link Only", als: "Auto LS", folTog: "Folders"
+        }
+    };
 
-  // Проверка авторизации
-  auth.onAuthStateChanged((user) => {
-    if (user) {
-      statusDiv.innerText = "Привет, " + user.displayName;
-      loginBtn.style.display = "none";
-    } else {
-      statusDiv.innerText = "Нужно войти в аккаунт";
-      loginBtn.style.display = "block";
+    let scripts = JSON.parse(localStorage.getItem('ls_v7_scripts') || "[]");
+    let folders = JSON.parse(localStorage.getItem('ls_v7_folders') || "[]");
+    let lang = localStorage.getItem('ls_v7_lang') || 'en';
+    let editingId = null;
+
+    function msg(txt) { 
+        const t = document.getElementById('toast'); 
+        t.innerText = txt; 
+        t.classList.add('active'); 
+        setTimeout(() => t.classList.remove('active'), 2000); 
     }
-  });
 
-  // Логика кнопки входа
-  loginBtn.onclick = () => {
-    auth.signInWithPopup(provider).catch(error => {
-        alert("Ошибка входа: " + error.message);
+    // --- CLOUD FUNCTIONS ---
+    function cloudLogin() {
+        auth.signInWithPopup(provider).then(res => {
+            msg("Welcome, " + res.user.displayName);
+            document.getElementById('cloudAuthBtn').innerText = "✅ " + res.user.displayName.split(' ')[0];
+        }).catch(e => alert(e.message));
+    }
+
+    function cloudPush() {
+        const user = auth.currentUser;
+        if(!user) return alert("Please Login first!");
+        db.ref('backups/' + user.uid).set({
+            scripts: scripts,
+            folders: folders,
+            lastSync: new Date().toLocaleString()
+        }).then(() => msg("Cloud Sync Success!"));
+    }
+
+    function cloudGet() {
+        const user = auth.currentUser;
+        if(!user) return alert("Please Login first!");
+        db.ref('backups/' + user.uid).once('value').then(snap => {
+            if(snap.exists()) {
+                const data = snap.val();
+                scripts = data.scripts || [];
+                folders = data.folders || [];
+                syncLocal();
+                msg("Cloud Data Imported!");
+            } else {
+                msg("No Cloud Data found.");
+            }
+        });
+    }
+
+    // --- APP FUNCTIONS ---
+    function setLang() { 
+        lang = document.getElementById('lang').value; 
+        localStorage.setItem('ls_v7_lang', lang); 
+        applyL(); 
+        render(); 
+    }
+
+    function applyL() {
+        const d = T[lang]; 
+        document.getElementById('lang').value = lang; 
+        document.getElementById('search').placeholder = d.search;
+        document.getElementById('l-fol').innerText = d.lFol; 
+        document.getElementById('l-nam').innerText = d.lNam; 
+        document.getElementById('l-url').innerText = d.lUrl;
+        document.getElementById('ui-mgr-h').innerText = d.mgrH; 
+        document.getElementById('ui-strict').innerText = d.strict; 
+        document.getElementById('ui-als').innerText = d.als;
+        document.getElementById('ui-fol-toggle').innerText = d.folTog; 
+        document.getElementById('b-sav').innerText = editingId ? d.upd : d.sav;
+        document.getElementById('b-can').innerText = d.can; 
+        document.getElementById('b-cop').innerText = d.cop; 
+        document.getElementById('b-clr').innerText = d.clr;
+        document.getElementById('b-fol-mgr').innerText = d.fol; 
+        document.getElementById('b-exp').innerText = d.exp; 
+        document.getElementById('b-imp').innerText = d.imp; 
+        document.getElementById('b-cre').innerText = d.cre;
+        document.getElementById('b-cls-view').innerText = d.cls; 
+        document.getElementById('b-cls-mgr').innerText = d.cls; 
+        document.getElementById('b-bak').innerText = d.bak;
+    }
+
+    function setTheme() { 
+        document.body.className = 'theme-' + document.getElementById('theme').value + ' ' + document.getElementById('mode').value; 
+    }
+
+    function toggleF() { 
+        const en = document.getElementById('uFol').checked; 
+        document.getElementById('iFol').disabled = !en; 
+        if(!en) document.getElementById('iFol').value = ""; 
+    }
+
+    function processCode(raw, isStrict, isAuto) {
+        let val = raw.trim(); 
+        if(!val) return null;
+        
+        if(isStrict) {
+            if(val.includes("pastebin.com/") && !val.includes("pastebin.com/raw/")) {
+                val = val.replace(/pastebin\.com\/([a-zA-Z0-9]+)/, "pastebin.com/raw/$1");
+            }
+            if(val.includes("github.com/") && val.includes("/blob/")) {
+                val = val.replace("github.com", "raw.githubusercontent.com").replace("/blob/", "/");
+            }
+        }
+        
+        return isAuto ? `loadstring(game:HttpGet("${val}"))()` : val;
+    }
+
+    function save() {
+        const raw = document.getElementById('iUrl').value;
+        const strictEn = document.getElementById('strict').checked;
+        const alsEn = document.getElementById('als').checked;
+        
+        const code = processCode(raw, strictEn, alsEn);
+        if(!code) return;
+        
+        let tag = document.getElementById('uFol').checked ? (document.getElementById('iFol').value.trim() || "No Folder") : "No Folder";
+        
+        if(tag !== "No Folder" && !folders.includes(tag)) folders.push(tag);
+        
+        if(editingId) {
+            const s = scripts.find(x => x.id === editingId);
+            Object.assign(s, { name: document.getElementById('iNam').value || "Unnamed", tag, code, raw });
+            cancelEdit();
+        } else {
+            scripts.unshift({ id: Date.now(), name: document.getElementById('iNam').value || "Unnamed", tag, code, raw, fav: false });
+        }
+        syncLocal(); 
+        autoCloudSync();
+        msg(T[lang].tSav);
+    }
+
+    // ВОЗВРАЩЕННАЯ ФУНКЦИЯ QUICK ADD
+    function quickAdd() {
+        const raw = document.getElementById('qUrl').value;
+        const name = document.getElementById('qNam').value || "Quick Script";
+        const tag = document.getElementById('activeF').getAttribute('data-name');
+        
+        const strictEn = document.getElementById('strict').checked;
+        const alsEn = document.getElementById('als').checked;
+        
+        const code = processCode(raw, strictEn, alsEn);
+        if(!code) return;
+        
+        scripts.unshift({ id: Date.now(), name, tag, code, raw, fav: false });
+        
+        document.getElementById('qNam').value = "";
+        document.getElementById('qUrl').value = "";
+        
+        syncLocal();
+        autoCloudSync();
+        openFol(tag);
+        msg(T[lang].tSav);
+    }
+
+    function syncLocal() { 
+        localStorage.setItem('ls_v7_scripts', JSON.stringify(scripts)); 
+        localStorage.setItem('ls_v7_folders', JSON.stringify(folders)); 
+        render(); 
+    }
+
+    function autoCloudSync() {
+        if(auth.currentUser) {
+            db.ref('backups/' + auth.currentUser.uid).set({
+                scripts: scripts,
+                folders: folders,
+                lastSync: new Date().toLocaleString()
+            });
+        }
+    }
+
+    function render() {
+        const q = document.getElementById('search').value.toLowerCase();
+        const box = document.getElementById('content'); 
+        box.innerHTML = "";
+        
+        const dList = document.getElementById('fList');
+        dList.innerHTML = folders.map(f => `<option value="${f}">`).join('');
+
+        if(!q) {
+            const favs = scripts.filter(s => s.fav);
+            if(favs.length) { 
+                box.innerHTML += `<div class="label-sep">${T[lang].favs}</div>`; 
+                favs.forEach(s => box.appendChild(createItem(s))); 
+            }
+            
+            box.innerHTML += `<div class="label-sep">${T[lang].folders}</div>`;
+            ["No Folder", ...folders].forEach(f => {
+                const count = scripts.filter(s => s.tag === f).length;
+                const div = document.createElement('div'); 
+                div.className = 'card'; 
+                div.onclick = () => openFol(f);
+                div.innerHTML = `<span>📁 <b>${f === "No Folder" ? T[lang].noFol : f}</b></span> <small style="color:var(--primary)">${count}</small>`;
+                box.appendChild(div);
+            });
+        } else { 
+            scripts.filter(s => s.name.toLowerCase().includes(q)).forEach(s => box.appendChild(createItem(s))); 
+        }
+    }
+
+    function createItem(s) {
+        const div = document.createElement('div'); 
+        div.className = 'card';
+        div.onclick = () => { 
+            navigator.clipboard.writeText(s.code); 
+            msg(T[lang].tCop); 
+        };
+        div.innerHTML = `
+            <div style="flex:1; overflow:hidden">
+                <b style="color:var(--primary)">${s.name}</b><br>
+                <small style="opacity:0.4">${s.tag}</small>
+            </div>
+            <div style="display:flex">
+                <span class="icon-btn star ${s.fav?'active':''}" onclick="event.stopPropagation(); toggleFv(${s.id})">★</span>
+                <span class="icon-btn" onclick="event.stopPropagation(); viewS(${s.id})">👁️</span>
+                <span class="icon-btn" onclick="event.stopPropagation(); editS(${s.id})">✏️</span>
+                <span class="icon-btn" onclick="event.stopPropagation(); delS(${s.id})" style="color:var(--err)">🗑️</span>
+            </div>`;
+        return div;
+    }
+
+    function toggleFv(id) { 
+        const s = scripts.find(x => x.id === id); 
+        s.fav = !s.fav; 
+        syncLocal(); 
+        autoCloudSync();
+    }
+
+    function viewS(id) { 
+        const s = scripts.find(x => x.id === id); 
+        document.getElementById('viewName').innerText = s.name; 
+        document.getElementById('viewCode').innerText = s.code; 
+        document.getElementById('viewOver').style.display = 'block'; 
+    }
+
+    function editS(id) {
+        const s = scripts.find(x => x.id === id); 
+        editingId = id;
+        document.getElementById('iNam').value = s.name; 
+        document.getElementById('iUrl').value = s.raw;
+        document.getElementById('uFol').checked = s.tag !== "No Folder"; 
+        toggleF();
+        document.getElementById('iFol').value = s.tag === "No Folder" ? "" : s.tag;
+        document.getElementById('b-sav').innerText = T[lang].upd; 
+        document.getElementById('b-can').style.display = 'flex';
+        closeO(); 
+        window.scrollTo({top:0, behavior:'smooth'});
+    }
+
+    function cancelEdit() { 
+        editingId = null; 
+        clearI(); 
+        document.getElementById('b-sav').innerText = T[lang].sav; 
+        document.getElementById('b-can').style.display = 'none'; 
+    }
+
+    function openFol(f) { 
+        document.getElementById('activeF').innerText = f === "No Folder" ? T[lang].noFol : f;
+        document.getElementById('activeF').setAttribute('data-name', f);
+        const box = document.getElementById('folScripts'); 
+        box.innerHTML = "";
+        scripts.filter(s => s.tag === f).forEach(s => box.appendChild(createItem(s)));
+        document.getElementById('folOver').style.display = 'block';
+    }
+
+    function openMgr() { 
+        document.getElementById('mgrOver').style.display = 'block'; 
+        renderMgr(); 
+    }
+
+    function closeO() { 
+        document.getElementById('folOver').style.display = 'none'; 
+        document.getElementById('mgrOver').style.display = 'none'; 
+    }
+
+    function renderMgr() {
+        const box = document.getElementById('mgrList'); 
+        box.innerHTML = "";
+        folders.forEach(f => {
+            const div = document.createElement('div'); 
+            div.className = 'card'; 
+            div.style.cursor = 'default';
+            div.innerHTML = `<span>${f}</span> <button class="btn-e" onclick="delF('${f}')" style="padding:5px 10px; border-radius:8px; font-size:10px;">DEL</button>`;
+            box.appendChild(div);
+        });
+    }
+
+    function addF() { 
+        const n = document.getElementById('newF').value.trim(); 
+        if(n && !folders.includes(n)) { folders.push(n); syncLocal(); autoCloudSync(); renderMgr(); } 
+        document.getElementById('newF').value = ""; 
+    }
+
+    function delF(n) { 
+        if(confirm(T[lang].confirm)) { 
+            scripts.forEach(s => { if(s.tag === n) s.tag = "No Folder"; }); 
+            folders = folders.filter(x => x !== n); 
+            syncLocal(); 
+            autoCloudSync();
+            renderMgr(); 
+        } 
+    }
+
+    function delS(id) { 
+        if(confirm(T[lang].confirm)) { 
+            scripts = scripts.filter(x => x.id !== id); 
+            syncLocal(); 
+            autoCloudSync();
+            if(document.getElementById('folOver').style.display==='block') {
+                openFol(document.getElementById('activeF').getAttribute('data-name'));
+            }
+        } 
+    }
+
+    function clearI() { 
+        document.getElementById('iNam').value = ""; 
+        document.getElementById('iUrl').value = ""; 
+        document.getElementById('iFol').value = ""; 
+    }
+
+    function copyI() { 
+        const c = processCode(document.getElementById('iUrl').value, document.getElementById('strict').checked, document.getElementById('als').checked); 
+        if(c) { navigator.clipboard.writeText(c); msg(T[lang].tCop); } 
+    }
+
+    // Слушатель для логина (обновляет кнопку, если пользователь уже вошел)
+    auth.onAuthStateChanged(user => {
+        if(user) {
+            document.getElementById('cloudAuthBtn').innerText = "✅ " + user.displayName.split(' ')[0];
+        }
     });
-  };
 
-  // СОХРАНЕНИЕ
-  document.getElementById('saveBtn').onclick = () => {
-    const user = auth.currentUser;
-    if (!user) return alert("Сначала войдите в аккаунт!");
-    
-    const val = textInput.value;
-    if (!val) return alert("Поле пустое!");
-
-    // Сохраняем в путь users/ID_ПОЛЬЗОВАТЕЛЯ
-    db.ref('users/' + user.uid).set({
-      text: val,
-      date: new Date().toLocaleString()
-    })
-    .then(() => alert("Успешно сохранено в облаке!"))
-    .catch(err => alert("Ошибка базы: " + err.message));
-  };
-
-  // ИМПОРТ (ЗАГРУЗКА)
-  document.getElementById('importBtn').onclick = () => {
-    const user = auth.currentUser;
-    if (!user) return alert("Сначала войдите в аккаунт!");
-
-    db.ref('users/' + user.uid).once('value')
-    .then((snapshot) => {
-      if (snapshot.exists()) {
-        textInput.value = snapshot.val().text;
-        alert("Данные загружены!");
-      } else {
-        alert("В вашем облаке еще нет записей.");
-      }
-    })
-    .catch(err => alert("Ошибка загрузки: " + err.message));
-  };
+    applyL(); setTheme(); render();
 </script>
-
 </body>
 </html>
