@@ -3,35 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cloud Saver</title>
+    <title>My Cloud Storage</title>
     <style>
-        body { font-family: sans-serif; background: #121212; color: white; text-align: center; padding: 20px; }
-        .box { background: #1e1e1e; padding: 20px; border-radius: 15px; border: 1px solid #333; max-width: 400px; margin: auto; }
-        input { width: 90%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #444; background: #252525; color: white; }
-        button { width: 95%; padding: 12px; margin: 5px 0; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
-        .btn-blue { background: #00d4ff; color: black; }
-        .btn-red { background: #ea4335; color: white; }
-        #status { color: #888; margin-bottom: 10px; font-size: 14px; }
+        /* Стильный темный интерфейс для мобильного */
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background: #121212; 
+            color: white; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+        }
+        .app-card { 
+            background: #1e1e1e; 
+            padding: 25px; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+            width: 90%; 
+            max-width: 350px; 
+            text-align: center; 
+            border: 1px solid #333;
+        }
+        h2 { color: #00d4ff; margin-top: 0; }
+        #status { font-size: 14px; color: #888; margin-bottom: 15px; }
+        
+        input { 
+            width: 100%; 
+            padding: 12px; 
+            margin: 10px 0; 
+            border-radius: 10px; 
+            border: 1px solid #444; 
+            background: #252525; 
+            color: white; 
+            box-sizing: border-box; 
+            outline: none;
+        }
+        input:focus { border-color: #00d4ff; }
+
+        button { 
+            width: 100%; 
+            padding: 12px; 
+            margin: 8px 0; 
+            border: none; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            transition: 0.2s; 
+        }
+        .btn-google { background: #ea4335; color: white; }
+        .btn-save { background: #00d4ff; color: #000; }
+        .btn-import { background: #333; color: #00d4ff; border: 1px solid #00d4ff; }
+        
+        button:active { transform: scale(0.98); }
     </style>
 </head>
 <body>
 
-<div class="box">
+<div class="app-card">
     <h2>Cloud Saver</h2>
-    <div id="status">Инициализация...</div>
+    <div id="status">Загрузка...</div>
     
-    <button class="btn-red" id="loginBtn" style="display:none">Войти через Google</button>
-    <input type="text" id="textInput" placeholder="Твой текст...">
-    <button class="btn-blue" id="saveBtn">Сохранить</button>
-    <button id="importBtn" style="background: #333; color: white;">Загрузить (Импорт)</button>
+    <button class="btn-google" id="loginBtn" style="display: none;">Войти через Google</button>
+    
+    <input type="text" id="textInput" placeholder="Введите текст для облака...">
+    
+    <button class="btn-save" id="saveBtn">💾 Сохранить</button>
+    <button class="btn-import" id="importBtn">📥 Импорт (Загрузить)</button>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
 <script>
-  // Твой конфиг
+  // Твой конфиг (уже проверенный)
   const firebaseConfig = {
     apiKey: "AIzaSyDhhcyOXdcHrz5KG3TZrrj6grwaeSxKHVk",
     authDomain: "mysotarage.firebaseapp.com",
@@ -39,59 +86,70 @@
     storageBucket: "mysotarage.firebasestorage.app",
     messagingSenderId: "940605681719",
     appId: "1:940605681719:web:63dc21b0d11f30fdfacfb2",
-    measurementId: "G-ZMEXJTBDB7"
+    measurementId: "G-ZMEXJTBDB7",
+    databaseURL: "https://mysotarage-default-rtdb.firebaseio.com"
   };
 
-  // Инициализация (compat версия)
+  // Инициализация
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
-  const db = firebase.firestore();
+  const db = firebase.database();
   const provider = new firebase.auth.GoogleAuthProvider();
 
   const statusDiv = document.getElementById('status');
   const loginBtn = document.getElementById('loginBtn');
   const textInput = document.getElementById('textInput');
 
-  // Следим за входом
+  // Проверка авторизации
   auth.onAuthStateChanged((user) => {
     if (user) {
-      statusDiv.innerText = "Аккаунт: " + user.displayName;
+      statusDiv.innerText = "Привет, " + user.displayName;
       loginBtn.style.display = "none";
     } else {
-      statusDiv.innerText = "Нужно войти в систему";
+      statusDiv.innerText = "Нужно войти в аккаунт";
       loginBtn.style.display = "block";
     }
   });
 
-  // Логин
+  // Логика кнопки входа
   loginBtn.onclick = () => {
-    auth.signInWithPopup(provider).catch(err => alert("Ошибка: " + err.message));
+    auth.signInWithPopup(provider).catch(error => {
+        alert("Ошибка входа: " + error.message);
+    });
   };
 
-  // Сохранение
+  // СОХРАНЕНИЕ
   document.getElementById('saveBtn').onclick = () => {
     const user = auth.currentUser;
-    if (!user) return alert("Войди в аккаунт!");
+    if (!user) return alert("Сначала войдите в аккаунт!");
     
-    db.collection("users_data").doc(user.uid).set({
-      text: textInput.value,
-      time: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(() => alert("Сохранено!"));
+    const val = textInput.value;
+    if (!val) return alert("Поле пустое!");
+
+    // Сохраняем в путь users/ID_ПОЛЬЗОВАТЕЛЯ
+    db.ref('users/' + user.uid).set({
+      text: val,
+      date: new Date().toLocaleString()
+    })
+    .then(() => alert("Успешно сохранено в облаке!"))
+    .catch(err => alert("Ошибка базы: " + err.message));
   };
 
-  // Загрузка
+  // ИМПОРТ (ЗАГРУЗКА)
   document.getElementById('importBtn').onclick = () => {
     const user = auth.currentUser;
-    if (!user) return alert("Войди в аккаунт!");
+    if (!user) return alert("Сначала войдите в аккаунт!");
 
-    db.collection("users_data").doc(user.uid).get().then((doc) => {
-      if (doc.exists) {
-        textInput.value = doc.data().text;
-        alert("Данные получены!");
+    db.ref('users/' + user.uid).once('value')
+    .then((snapshot) => {
+      if (snapshot.exists()) {
+        textInput.value = snapshot.val().text;
+        alert("Данные загружены!");
       } else {
-        alert("В облаке пусто");
+        alert("В вашем облаке еще нет записей.");
       }
-    });
+    })
+    .catch(err => alert("Ошибка загрузки: " + err.message));
   };
 </script>
 
