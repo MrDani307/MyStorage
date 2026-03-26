@@ -183,6 +183,7 @@
             font-weight: bold; 
         }
 
+        /* Стили для текстовых полей */
         input { 
             width: 100%; 
             padding: 14px; 
@@ -195,6 +196,26 @@
         }
 
         input:focus { 
+            border-color: var(--primary); 
+            background: rgba(0,0,0,0.6); 
+            box-shadow: 0 0 15px var(--glow-color); 
+        }
+
+        /* Специфичные стили для выпадающего списка выбора папки */
+        .input-box select {
+            width: 100%; 
+            padding: 14px; 
+            border-radius: 15px; 
+            border: 2px solid rgba(255,255,255,0.05); 
+            background: rgba(0,0,0,0.4); 
+            color: #fff; 
+            font-size: 14px; 
+            outline: none;
+            cursor: pointer;
+            appearance: none;
+        }
+
+        .input-box select:focus {
             border-color: var(--primary); 
             background: rgba(0,0,0,0.6); 
             box-shadow: 0 0 15px var(--glow-color); 
@@ -382,8 +403,11 @@
 
     <div class="input-box">
         <label id="l-fol">Folder:</label>
-        <input type="text" id="iFol" list="fList" placeholder="...">
+        <select id="iFol">
+            <option value="">No Folder</option>
+        </select>
     </div>
+    
     <div class="input-box">
         <label id="l-nam">Name:</label>
         <input type="text" id="iNam" placeholder="...">
@@ -446,8 +470,6 @@
         <div id="folScripts"></div>
     </div>
 </div>
-
-<datalist id="fList"></datalist>
 
 <script>
     // --- FIREBASE CONFIG ---
@@ -597,7 +619,7 @@
         const code = processCode(raw, strictEn, alsEn);
         if(!code) return;
         
-        let tag = document.getElementById('uFol').checked ? (document.getElementById('iFol').value.trim() || "No Folder") : "No Folder";
+        let tag = document.getElementById('uFol').checked ? (document.getElementById('iFol').value || "No Folder") : "No Folder";
         
         if(tag !== "No Folder" && !folders.includes(tag)) folders.push(tag);
         
@@ -613,7 +635,6 @@
         msg(T[lang].tSav);
     }
 
-    // ВОЗВРАЩЕННАЯ ФУНКЦИЯ QUICK ADD
     function quickAdd() {
         const raw = document.getElementById('qUrl').value;
         const name = document.getElementById('qNam').value || "Quick Script";
@@ -657,8 +678,15 @@
         const box = document.getElementById('content'); 
         box.innerHTML = "";
         
-        const dList = document.getElementById('fList');
-        dList.innerHTML = folders.map(f => `<option value="${f}">`).join('');
+        // Обновляем выпадающий список папок в главном меню
+        const sel = document.getElementById('iFol');
+        const currentVal = sel.value;
+        sel.innerHTML = `<option value="">${T[lang].noFol}</option>` + folders.map(f => `<option value="${f}">${f}</option>`).join('');
+        if (folders.includes(currentVal)) {
+            sel.value = currentVal;
+        } else {
+            sel.value = "";
+        }
 
         if(!q) {
             const favs = scripts.filter(s => s.fav);
@@ -806,7 +834,6 @@
         if(c) { navigator.clipboard.writeText(c); msg(T[lang].tCop); } 
     }
 
-    // Слушатель для логина (обновляет кнопку, если пользователь уже вошел)
     auth.onAuthStateChanged(user => {
         if(user) {
             document.getElementById('cloudAuthBtn').innerText = "✅ " + user.displayName.split(' ')[0];
