@@ -183,7 +183,6 @@
             font-weight: bold; 
         }
 
-        /* Стили для текстовых полей */
         input { 
             width: 100%; 
             padding: 14px; 
@@ -201,7 +200,6 @@
             box-shadow: 0 0 15px var(--glow-color); 
         }
 
-        /* Специфичные стили для выпадающего списка выбора папки */
         .input-box select {
             width: 100%; 
             padding: 14px; 
@@ -383,7 +381,9 @@
             <option value="mobile-mode">Mobile</option>
             <option value="pc-mode">PC Mode</option>
         </select>
-        <button id="cloudAuthBtn" class="btn-p" style="padding: 5px 15px; font-size: 10px; border-radius: 12px;" onclick="cloudLogin()">🔑 Login</button>
+        <div id="authArea" style="display: flex;">
+            <button id="cloudAuthBtn" class="btn-p" style="padding: 5px 15px; font-size: 10px; border-radius: 12px;" onclick="cloudLogin()">🔑 Login</button>
+        </div>
     </div>
 
     <div style="display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; font-size: 11px; color: #aaa; font-weight: bold;">
@@ -519,14 +519,31 @@
         setTimeout(() => t.classList.remove('active'), 2000); 
     }
 
-    // --- CLOUD FUNCTIONS ---
+    // --- CLOUD AUTH FUNCTIONS ---
     function cloudLogin() {
-        auth.signInWithPopup(provider).then(res => {
-            msg("Welcome, " + res.user.displayName);
-            document.getElementById('cloudAuthBtn').innerText = "✅ " + res.user.displayName.split(' ')[0];
-        }).catch(e => alert(e.message));
+        auth.signInWithPopup(provider).catch(e => alert(e.message));
     }
 
+    function cloudLogout() {
+        if(confirm("Log out from Cloud?")) {
+            auth.signOut().then(() => {
+                msg("Logged out");
+            });
+        }
+    }
+
+    // Слушатель состояния авторизации
+    auth.onAuthStateChanged(user => {
+        const area = document.getElementById('authArea');
+        if(user) {
+            const shortName = user.displayName.split(' ')[0];
+            area.innerHTML = `<button class="btn-p" style="padding: 5px 15px; font-size: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);" onclick="cloudLogout()">🔓 ${shortName}</button>`;
+        } else {
+            area.innerHTML = `<button id="cloudAuthBtn" class="btn-p" style="padding: 5px 15px; font-size: 10px; border-radius: 12px;" onclick="cloudLogin()">🔑 Login</button>`;
+        }
+    });
+
+    // --- CLOUD DATA FUNCTIONS ---
     function cloudPush() {
         const user = auth.currentUser;
         if(!user) return alert("Please Login first!");
@@ -553,7 +570,7 @@
         });
     }
 
-    // --- APP FUNCTIONS ---
+    // --- APP CORE FUNCTIONS ---
     function setLang() { 
         lang = document.getElementById('lang').value; 
         localStorage.setItem('ls_v7_lang', lang); 
@@ -678,7 +695,6 @@
         const box = document.getElementById('content'); 
         box.innerHTML = "";
         
-        // Обновляем выпадающий список папок в главном меню
         const sel = document.getElementById('iFol');
         const currentVal = sel.value;
         sel.innerHTML = `<option value="">${T[lang].noFol}</option>` + folders.map(f => `<option value="${f}">${f}</option>`).join('');
@@ -833,12 +849,6 @@
         const c = processCode(document.getElementById('iUrl').value, document.getElementById('strict').checked, document.getElementById('als').checked); 
         if(c) { navigator.clipboard.writeText(c); msg(T[lang].tCop); } 
     }
-
-    auth.onAuthStateChanged(user => {
-        if(user) {
-            document.getElementById('cloudAuthBtn').innerText = "✅ " + user.displayName.split(' ')[0];
-        }
-    });
 
     applyL(); setTheme(); render();
 </script>
